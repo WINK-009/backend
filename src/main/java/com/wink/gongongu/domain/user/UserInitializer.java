@@ -16,7 +16,7 @@ public class UserInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
          User testUser1 = User.builder()
             .nickname("테스트유저")
             .build();
