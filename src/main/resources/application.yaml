@@ -13,4 +13,9 @@ spring:
         format_sql: true
     show-sql: true
 
+jwt:
+  secret: "${JWT_SECRET}"
+  access-exp-seconds: 1800 # 30분
+  refresh-exp-seconds: 2592000 # 30일
+
 
