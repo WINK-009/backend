@@ -40,7 +40,9 @@ public class User {
     private String region;
 
     @Builder
-    public User(String nickname){
+    public User(String nickname,String kakaoId){
         this.nickname = nickname;
+        this.kakaoId=kakaoId;
+        this.userType=UserType.TMP;
     }
 }

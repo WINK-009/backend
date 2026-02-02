@@ -2,6 +2,7 @@ package com.wink.gongongu.auth.config;
 
 import com.wink.gongongu.auth.entrypoint.ExAuthenticationEntryPoint;
 import com.wink.gongongu.auth.filter.JwtAuthenticationFilter;
+import com.wink.gongongu.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtAuthenticationFilter jwtFilter;
     private final ExAuthenticationEntryPoint exAuthenticationEntryPoint;
 
@@ -27,7 +29,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/","/oauth2/**","/login/**","/auth/**").permitAll()
 
                 .requestMatchers(
                     "/swagger-ui/**",
@@ -39,6 +41,11 @@ public class SecurityConfig {
 
             .exceptionHandling(
                 ex -> ex.authenticationEntryPoint(exAuthenticationEntryPoint)
+            )
+
+            .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .defaultSuccessUrl("/", true)
             )
 
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
