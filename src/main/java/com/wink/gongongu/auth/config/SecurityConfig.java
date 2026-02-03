@@ -2,6 +2,7 @@ package com.wink.gongongu.auth.config;
 
 import com.wink.gongongu.auth.entrypoint.ExAuthenticationEntryPoint;
 import com.wink.gongongu.auth.filter.JwtAuthenticationFilter;
+import com.wink.gongongu.auth.handler.OAuth2SuccessHandler;
 import com.wink.gongongu.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtAuthenticationFilter jwtFilter;
     private final ExAuthenticationEntryPoint exAuthenticationEntryPoint;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,7 +47,7 @@ public class SecurityConfig {
 
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .defaultSuccessUrl("/", true)
+                .successHandler(oAuth2SuccessHandler)
             )
 
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
