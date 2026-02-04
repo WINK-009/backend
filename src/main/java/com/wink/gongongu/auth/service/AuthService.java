@@ -8,6 +8,7 @@ import com.wink.gongongu.auth.jwt.TokenStatus;
 import com.wink.gongongu.auth.jwt.service.JwtTokenProvider;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
+import com.wink.gongongu.domain.user.exception.UserErrorCode;
 import com.wink.gongongu.domain.user.mapper.UserMapper;
 import com.wink.gongongu.domain.user.service.UserService;
 import com.wink.gongongu.global.exception.BusinessException;
@@ -38,6 +39,10 @@ public class AuthService {
 
     @Transactional
     public SignUpResponse signUp(String loginToken, SignUpRequest request) {
+        if(request.role()!= UserType.INDIVIDUAL && request.role()!= UserType.BUSINESS){
+            throw new BusinessException(UserErrorCode.INVALID_USER_TYPE);
+        }
+
         Long userId = getUserIdLoginToken(loginToken);
         User user = userService.signUp(userId, request);
         String accessToken = jwtTokenProvider.createAccessToken(userId);
