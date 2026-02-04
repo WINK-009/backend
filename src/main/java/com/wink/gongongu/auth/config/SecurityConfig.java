@@ -2,6 +2,7 @@ package com.wink.gongongu.auth.config;
 
 import com.wink.gongongu.auth.entrypoint.ExAuthenticationEntryPoint;
 import com.wink.gongongu.auth.filter.JwtAuthenticationFilter;
+import com.wink.gongongu.auth.handler.CustomAccessDinedHandler;
 import com.wink.gongongu.auth.handler.OAuth2SuccessHandler;
 import com.wink.gongongu.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final ExAuthenticationEntryPoint exAuthenticationEntryPoint;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final CustomAccessDinedHandler customAccessDinedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,18 +37,19 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/","/oauth2/**","/login/**","/auth/**").permitAll()
+                .requestMatchers("/","/oauth2/**","/login/**","/auth/**","/error").permitAll()
 
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**", "/favicon.ico")
                 .permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().hasAnyRole("INDIVIDUAL","BUSINESS")
             )
 
             .exceptionHandling(
                 ex -> ex.authenticationEntryPoint(exAuthenticationEntryPoint)
+                    .accessDeniedHandler(customAccessDinedHandler)
             )
 
             .oauth2Login(oauth2 -> oauth2

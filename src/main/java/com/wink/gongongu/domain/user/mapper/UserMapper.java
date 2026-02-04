@@ -3,6 +3,7 @@ package com.wink.gongongu.domain.user.mapper;
 import com.wink.gongongu.auth.dto.LoginResponse;
 import com.wink.gongongu.auth.dto.SignUpResponse;
 import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.entity.UserType;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -11,6 +12,7 @@ public class UserMapper {
     public static User toEntity(String kakaoId){
         return User.builder()
             .kakaoId(kakaoId)
+            .userType(UserType.TMP)
             .build();
     }
 

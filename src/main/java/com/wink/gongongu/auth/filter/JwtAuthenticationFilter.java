@@ -4,6 +4,7 @@ import com.wink.gongongu.auth.exception.AuthErrorCode;
 import com.wink.gongongu.auth.jwt.TokenStatus;
 import com.wink.gongongu.auth.jwt.service.JwtTokenProvider;
 import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,9 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (tokenStatus == TokenStatus.VALID) {
             Long userId = tokenProvider.getUserIdFromToken(token);
             User user = userService.findById(userId);
+            UserType userType = user.getUserType();
 
             UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(user, null, List.of());
+                new UsernamePasswordAuthenticationToken(user, null,
+                    List.of(new SimpleGrantedAuthority("ROLE_"+userType)));
 
             SecurityContextHolder.getContext().setAuthentication(auth);
         } else {
