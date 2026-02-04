@@ -31,7 +31,7 @@ spring:
 
 jwt:
   secret: "${JWT_SECRET}"
-  access-exp-seconds: 1800 # 30분
+  access-exp-seconds: 2592000 # 30일
   refresh-exp-seconds: 2592000 # 30일
   tmp-exp-seconds: 86400 # 1일
 

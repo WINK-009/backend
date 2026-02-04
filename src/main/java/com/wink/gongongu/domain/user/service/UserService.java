@@ -2,6 +2,7 @@ package com.wink.gongongu.domain.user.service;
 
 import com.wink.gongongu.auth.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.exception.UserErrorCode;
 import com.wink.gongongu.domain.user.repository.UserRepository;
 import com.wink.gongongu.global.exception.BusinessException;
@@ -23,6 +24,10 @@ public class UserService {
 
     public User signUp(Long userId, SignUpRequest request) {
         User user = findById(userId);
+
+        if(user.getUserType()!= UserType.TMP){
+            throw new BusinessException(UserErrorCode.USER_ALREADY_SIGNED_UP);
+        }
         user.signUp(request);
         return user;
     }

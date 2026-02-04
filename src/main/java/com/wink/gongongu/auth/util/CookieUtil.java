@@ -11,8 +11,8 @@ public class CookieUtil {
             .path("/")
             .maxAge(0)
             .httpOnly(true)
-            .secure(true)       // 운영이면 true
-            .sameSite("None")   // 운영 cross-site면 None
+            .secure(true)
+            .sameSite("None")
             .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
