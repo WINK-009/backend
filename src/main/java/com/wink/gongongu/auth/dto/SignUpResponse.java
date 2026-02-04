@@ -4,10 +4,12 @@ import com.wink.gongongu.domain.user.entity.UserType;
 import lombok.Builder;
 
 @Builder
-public record LoginResponse(
+public record SignUpResponse(
     Long userId,
-    String nickname,
     UserType role,
+    String nickname,
+    String region,
+    String businessCode,
     String accessToken
 ) {
 

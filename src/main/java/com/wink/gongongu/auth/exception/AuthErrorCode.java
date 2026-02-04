@@ -15,7 +15,7 @@ public enum AuthErrorCode implements ErrorCode {
     UNKNOWN_ERROR("알 수 없는 오류가 발생했습니다.", HttpStatus.UNAUTHORIZED),
     MISSING_LOGIN_TOKEN("로그인 토큰이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_LOGIN_TOKEN("유효하지 않은 로그인 토큰입니다.", HttpStatus.UNAUTHORIZED),
-    TEMP_USER_CANNOT_LOGIN("임시 회원은 로그인이 불가능합니다.", HttpStatus.FORBIDDEN);
+    TMP_USER_CANNOT_LOGIN("임시 회원은 로그인이 불가능합니다.", HttpStatus.FORBIDDEN);
 
     private final String message;
     private final HttpStatus status;

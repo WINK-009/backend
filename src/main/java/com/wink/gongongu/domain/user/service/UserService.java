@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.user.service;
 
+import com.wink.gongongu.auth.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.exception.UserErrorCode;
 import com.wink.gongongu.domain.user.repository.UserRepository;
@@ -18,5 +19,11 @@ public class UserService {
     public User findById(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    public User signUp(Long userId, SignUpRequest request) {
+        User user = findById(userId);
+        user.signUp(request);
+        return user;
     }
 }
