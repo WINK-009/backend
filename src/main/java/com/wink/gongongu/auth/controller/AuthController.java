@@ -21,24 +21,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthControllerSpec {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthService authService;
 
+    @Override
     @PostMapping("/test-issue")
     @ResponseStatus(HttpStatus.CREATED)
     public TestTokenIssueResponse issueTestJwt() {
         return new TestTokenIssueResponse(jwtTokenProvider.createAccessToken(1L));
     }
 
+    @Override
     @GetMapping("/login")
     public LoginResponse login(
-        @CookieValue(value = "LOGIN_TOKEN",required = false) String loginToken
+        @CookieValue(value = "LOGIN_TOKEN",required = false) String loginToken,
+        HttpServletResponse response
     ){
-        return authService.login(loginToken);
+        LoginResponse res = authService.login(loginToken);
+        CookieUtil.deleteLoginTokenCookie(response);
+        return res;
     }
 
+    @Override
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public SignUpResponse signup(
@@ -46,7 +52,8 @@ public class AuthController {
         @RequestBody SignUpRequest request,
         HttpServletResponse response
     ){
+        SignUpResponse res = authService.signUp(loginToken, request);
         CookieUtil.deleteLoginTokenCookie(response);
-        return authService.signUp(loginToken, request);
+        return res;
     }
 }
