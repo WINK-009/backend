@@ -1,5 +1,8 @@
 package com.wink.gongongu.domain.post.entity;
 
+import com.wink.gongongu.domain.post.dto.UploadPostRequest;
+import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -21,12 +24,16 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User userId;
+
     private String title;
 
     private Integer price;
 
     @Column(name = "discount_price")
-    private Long discountPrice;
+    private Integer originalprice;
 
     private LocalDate dueDate;
 
@@ -46,27 +53,22 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     private PostType type;
-    public static Post create(
-            String image,
-            String title,
-            Integer price,
-            LocalDate dueDate,
-            Integer maxQuantity,
-            String description,
-            String region,
-            PostType type
-    ) {
+
+    public static Post create(User user, UploadPostRequest req, PostType type) {
         Post p = new Post();
-        p.image = image;
-        p.title = title;
-        p.price = price;
-        p.dueDate = dueDate;
-        p.maxQuantity = maxQuantity;
-        p.description = description;
-        p.region = region;
-        p.type = type;
+        p.userId = user;
+        p.title = req.title();
+        p.region = req.region();
+        p.description = req.description();
+        p.image = req.image();
+        p.price = req.price();
+        p.originalprice = req.originalprice();
+        p.maxQuantity = req.maxQuantity();
+        p.dueDate = req.duedate();
+
+        // 글 타입을 userType에서 자동 결정
+        p.type = (user.getUserType() == UserType.BUSINESS) ? PostType.BUSINESS : PostType.INDIVIDUAL;
         p.status = PostStatus.OPEN;
-        p.createdAt = LocalDateTime.now();
         return p;
     }
 

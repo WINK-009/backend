@@ -8,6 +8,7 @@ public record UploadPostRequest(
         String image,
         String title,
         Integer price,
+        Integer originalprice,
         LocalDate duedate,
         Integer maxQuantity,
         String description,
