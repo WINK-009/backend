@@ -49,6 +49,17 @@ public class JwtTokenProvider {
             .compact();
     }
 
+    public String createLoginToken(Long userId){
+        Instant now = Instant.now();
+
+        return Jwts.builder()
+            .subject(String.valueOf(userId))
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(now.plusSeconds(props.tmpExpSeconds())))
+            .signWith(key)
+            .compact();
+    }
+
     public TokenStatus validateToken(String token) {
         if (token == null || token.isBlank()) {
             return TokenStatus.MISSING_TOKEN;
