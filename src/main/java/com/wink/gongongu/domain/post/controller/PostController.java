@@ -1,9 +1,12 @@
 package com.wink.gongongu.domain.post.controller;
 
+import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.dto.UploadPostResponse;
+import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.domain.post.service.PostService;
 import com.wink.gongongu.domain.user.entity.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.List;
 
 
 @RestController
@@ -42,4 +47,11 @@ public class PostController {
         throw new IllegalStateException("Cannot extract userId from principal: " + principal);
     }
 
+    @GetMapping
+    public ResponseEntity<List<PostListResponse>> getPostList(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "20") int size) {
+        List<PostListResponse> PostList = postService.getPostList(page,size);
+        return ResponseEntity.ok(PostList);
+
+    }
 }

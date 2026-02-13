@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.service;
 
+import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.entity.PostType;
@@ -9,8 +10,12 @@ import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
@@ -32,9 +37,6 @@ public class PostService {
             Post post = Post.create(user, request, PostType.INDIVIDUAL);
             return postRepository.save(post).getPostId();
         }
-
-
-
     }
     private void validateBusiness(UploadPostRequest req) {
         // BUSINESS: price 필수
@@ -56,5 +58,14 @@ public class PostService {
             throw new IllegalArgumentException("INDIVIDUAL은 region 필수");
     }
 
+    public List<PostListResponse> getPostList(int page, int size){
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return postRepository.findAll(pageable)
+                .map(PostListResponse::from)
+                .getContent();
+
+
+    }
 
 }

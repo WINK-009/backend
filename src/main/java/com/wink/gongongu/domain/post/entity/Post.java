@@ -3,12 +3,14 @@ package com.wink.gongongu.domain.post.entity;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
+import com.wink.gongongu.global.common.BaseTimeEntity;
 import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name="post")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseTimeEntity {
 
     @Id
     @Column(name = "post_id")
@@ -49,10 +51,11 @@ public class Post {
 
     private String region;
 
-    private java.time.LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     private PostType type;
+
+    private Integer likeCount;
 
     public static Post create(User user, UploadPostRequest req, PostType type) {
         Post p = new Post();
@@ -69,6 +72,7 @@ public class Post {
         // 글 타입을 userType에서 자동 결정
         p.type = (user.getUserType() == UserType.BUSINESS) ? PostType.BUSINESS : PostType.INDIVIDUAL;
         p.status = PostStatus.OPEN;
+        p.likeCount = 0;
         return p;
     }
 

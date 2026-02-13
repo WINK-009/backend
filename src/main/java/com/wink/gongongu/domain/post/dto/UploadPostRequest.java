@@ -13,6 +13,7 @@ public record UploadPostRequest(
         Integer maxQuantity,
         String description,
         String region,
-        PostType postType
+        PostType postType,
+        Integer like
 ) {
 }
