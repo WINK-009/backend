@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.controller;
 
+import com.wink.gongongu.domain.post.dto.PostDetailResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.dto.UploadPostResponse;
@@ -53,5 +54,10 @@ public class PostController {
         List<PostListResponse> PostList = postService.getPostList(page,size);
         return ResponseEntity.ok(PostList);
 
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId){
+        return ResponseEntity.ok(postService.getPostDetail(postId));
     }
 }

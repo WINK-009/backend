@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.service;
 
+import com.wink.gongongu.domain.post.dto.PostDetailResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.entity.Post;
@@ -58,13 +59,20 @@ public class PostService {
             throw new IllegalArgumentException("INDIVIDUAL은 region 필수");
     }
 
+    @Transactional
     public List<PostListResponse> getPostList(int page, int size){
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return postRepository.findAll(pageable)
                 .map(PostListResponse::from)
                 .getContent();
+    }
+    @Transactional
+    public PostDetailResponse getPostDetail(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
+        return PostDetailResponse.from(post);
 
     }
 
