@@ -1,4 +1,4 @@
-package com.wink.gongongu.auth.dto;
+package com.wink.gongongu.domain.user.dto;
 
 import com.wink.gongongu.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;

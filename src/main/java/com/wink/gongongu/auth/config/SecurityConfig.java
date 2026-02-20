@@ -44,7 +44,11 @@ public class SecurityConfig {
                     "/swagger-ui.html",
                     "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**", "/favicon.ico")
                 .permitAll()
+
+                .requestMatchers("/users/signup").hasRole("TMP")
+
                 .anyRequest().hasAnyRole("INDIVIDUAL","BUSINESS")
+
             )
 
             .exceptionHandling(

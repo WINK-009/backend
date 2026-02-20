@@ -1,6 +1,6 @@
 package com.wink.gongongu.domain.user.entity;
 
-import com.wink.gongongu.auth.dto.SignUpRequest;
+import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
