@@ -25,10 +25,11 @@ public class UserService {
     }
 
     @Transactional
-    public SignUpResponse signUp(User user, SignUpRequest request) {
+    public SignUpResponse signUp(Long userId, SignUpRequest request) {
         if(request.role()!= UserType.INDIVIDUAL && request.role()!= UserType.BUSINESS){
             throw new BusinessException(UserErrorCode.INVALID_USER_TYPE);
         }
+        User user = findById(userId);
         if(user.getUserType()!= UserType.TMP){
             throw new BusinessException(UserErrorCode.USER_ALREADY_SIGNED_UP);
         }

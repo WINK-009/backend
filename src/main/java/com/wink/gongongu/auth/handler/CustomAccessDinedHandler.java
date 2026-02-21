@@ -29,7 +29,7 @@ public class CustomAccessDinedHandler implements AccessDeniedHandler {
 
         Map<String, Object> body = Map.of(
             "code", "FORBIDDEN",
-            "message", "접근 권한이 없습니다. 회원가입을 해주세요."
+            "message", "접근 권한이 없습니다."
         );
 
         objectMapper.writeValue(response.getWriter(), body);

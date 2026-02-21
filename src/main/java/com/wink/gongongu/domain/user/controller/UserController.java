@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.user.controller;
 
+import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
 import com.wink.gongongu.domain.user.entity.User;
@@ -26,8 +27,8 @@ public class UserController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public SignUpResponse singUp(@RequestBody SignUpRequest request,
-        @AuthenticationPrincipal User user) {
-        return userService.signUp(user, request);
+        @AuthenticationPrincipal UserPrincipal principal) {
+        return userService.signUp(principal.userId(), request);
     }
 
 }
