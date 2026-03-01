@@ -4,6 +4,7 @@ import com.wink.gongongu.domain.post.dto.PostDetailResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.entity.Post;
+import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.entity.PostType;
 import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.domain.user.entity.User;
@@ -11,7 +12,9 @@ import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -74,6 +77,24 @@ public class PostService {
 
         return PostDetailResponse.from(post);
 
+    }
+
+    public Page<PostListResponse> searchPosts(
+            String query,
+            String region,
+            PostType type,
+            PostStatus status,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        return postRepository.search(query, region, type, status, pageable)
+                .map(PostListResponse::from);
     }
 
 }

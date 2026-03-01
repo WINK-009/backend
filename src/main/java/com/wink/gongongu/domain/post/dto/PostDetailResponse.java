@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.entity.PostType;
