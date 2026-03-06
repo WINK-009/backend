@@ -2,6 +2,7 @@ package com.wink.gongongu.domain.user.service;
 
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileResponse;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.exception.UserErrorCode;
@@ -35,5 +36,11 @@ public class UserService {
         }
         user.signUp(request);
         return UserMapper.toSignUpResponse(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileResponse getUserProfile(Long userId) {
+        User user = findById(userId);
+        return UserMapper.toUserProfileResponse(user);
     }
 }

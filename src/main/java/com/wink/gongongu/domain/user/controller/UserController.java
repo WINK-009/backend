@@ -3,10 +3,12 @@ package com.wink.gongongu.domain.user.controller;
 import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileResponse;
 import com.wink.gongongu.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +28,11 @@ public class UserController implements UserControllerSpec {
     public SignUpResponse singUp(@RequestBody SignUpRequest request,
         @AuthenticationPrincipal UserPrincipal principal) {
         return userService.signUp(principal.userId(), request);
+    }
+
+    @GetMapping
+    public UserProfileResponse getUserProfile(@AuthenticationPrincipal UserPrincipal principal) {
+        return userService.getUserProfile(principal.userId());
     }
 
 }
