@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
 
-    List<Address> findByUser_Id(Long userId);
+    List<Address> findByUser_IdOrderByIsDefaultDescIdAsc(Long userId);
 
     Optional<Address> findByUserAndIsDefaultTrue(User user);
 }

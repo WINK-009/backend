@@ -39,7 +39,7 @@ public class AddressService {
 
      @Transactional(readOnly = true)
     public UserAddressesResponse getUserAddresses(Long userId) {
-         List<Address> addresses = addressRepository.findByUser_Id(userId);
+         List<Address> addresses = addressRepository.findByUser_IdOrderByIsDefaultDescIdAsc(userId);
          return AddressMapper.toListResponse(addresses);
      }
 
