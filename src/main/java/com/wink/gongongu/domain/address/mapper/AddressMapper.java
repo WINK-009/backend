@@ -2,6 +2,7 @@ package com.wink.gongongu.domain.address.mapper;
 
 import com.wink.gongongu.domain.address.dto.UserAddressCreateRequest;
 import com.wink.gongongu.domain.address.dto.UserAddressCreateResponse;
+import com.wink.gongongu.domain.address.dto.UserAddressDetailResponse;
 import com.wink.gongongu.domain.address.dto.UserAddressesResponse;
 import com.wink.gongongu.domain.address.entity.Address;
 import com.wink.gongongu.domain.user.entity.User;
@@ -54,6 +55,20 @@ public class AddressMapper {
 
         return UserAddressesResponse.builder()
                 .addresses(items)
+                .build();
+    }
+
+    public static UserAddressDetailResponse toDetailResponse(Address address){
+        return UserAddressDetailResponse.builder()
+                .addressId(address.getId())
+                .recipient(address.getRecipient())
+                .phoneNumber(address.getPhoneNumber())
+                .roadAddress(address.getRoadAddress())
+                .detailAddress(address.getDetailAddress())
+                .zipCode(address.getZipCode())
+                .alias(address.getAlias())
+                .memo(address.getMemo())
+                .isDefault(address.isDefault())
                 .build();
     }
 }
