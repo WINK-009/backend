@@ -18,13 +18,16 @@ public record PostDetailResponse(
         Integer originalprice,
         LocalDate duedate,
         Integer maxQuantity,
+        Integer joinedQuantitySum,
+        Integer remainingQuantity,
         PostStatus status,
         String region,
         LocalDate createdAt,
         PostType type
 ) {
-    public static PostDetailResponse from(Post p){
+    public static PostDetailResponse from(Post p, int joinedSum){
         User u = p.getUserId();
+        int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
         return new PostDetailResponse(
                 p.getPostId(),
                 u.getId(),
@@ -35,6 +38,8 @@ public record PostDetailResponse(
                 p.getOriginalprice(),
                 p.getDueDate(),
                 p.getMaxQuantity(),
+                joinedSum,
+                remaining,
                 p.getStatus(),
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),

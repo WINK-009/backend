@@ -16,12 +16,19 @@ public record PostListResponse(
         Integer originalprice,
         LocalDate duedate,
         Integer maxQuantity,
+        Integer joinedQuantitySum,
+        Integer remainingQuantity,
         PostStatus status,
         String region,
         LocalDate createdAt,
         PostType type
 ) {
     public static PostListResponse from(Post p) {
+        return from(p, 0);
+    }
+    public static PostListResponse from(Post p, int joinedSum) {
+        int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
+
         return new PostListResponse(
                 p.getPostId(),
 
@@ -33,6 +40,8 @@ public record PostListResponse(
 
                 p.getDueDate(),
                 p.getMaxQuantity(),
+                joinedSum,
+                remaining,
                 p.getStatus(),
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
