@@ -23,6 +23,14 @@ public class AddressService {
      @Transactional
     public UserAddressCreateResponse createAddress(Long userId, UserAddressCreateRequest request) {
          User user = userService.findById(userId);
+
+         if(request.isDefault()){
+             addressRepository.findByUserAndIsDefaultTrue(user)
+                 .ifPresent(addr -> {
+                     addr.changeDefault(false);
+                 });
+         }
+
          Address address = AddressMapper.toEntity(user, request);
          addressRepository.save(address);
 

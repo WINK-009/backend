@@ -52,4 +52,8 @@ public class Address {
 
     private String phoneNumber;
 
+    public void changeDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
 }
