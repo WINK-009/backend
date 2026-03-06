@@ -2,11 +2,13 @@ package com.wink.gongongu.domain.address.service;
 
 import com.wink.gongongu.domain.address.dto.UserAddressCreateRequest;
 import com.wink.gongongu.domain.address.dto.UserAddressCreateResponse;
+import com.wink.gongongu.domain.address.dto.UserAddressesResponse;
 import com.wink.gongongu.domain.address.entity.Address;
 import com.wink.gongongu.domain.address.mapper.AddressMapper;
 import com.wink.gongongu.domain.address.repository.AddressRepository;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.service.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,12 @@ public class AddressService {
          addressRepository.save(address);
 
          return AddressMapper.toCreateResponse(address);
+     }
+
+     @Transactional(readOnly = true)
+    public UserAddressesResponse getUserAddresses(Long userId) {
+         List<Address> addresses = addressRepository.findByUser_Id(userId);
+         return AddressMapper.toListResponse(addresses);
      }
 
 
