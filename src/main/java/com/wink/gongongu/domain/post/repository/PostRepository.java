@@ -33,4 +33,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             @Param("status") PostStatus status,
             Pageable pageable
     );
+
+    Post findByPostId(Long postId);
 }
