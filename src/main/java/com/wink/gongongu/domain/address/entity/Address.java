@@ -10,12 +10,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@AllArgsConstructor
+@Builder
 public class Address {
 
     @Id
@@ -31,6 +35,8 @@ public class Address {
 
     private String detailAddress;
 
+    private String zipCode;
+
     private double latitude;
 
     private double longitude;
@@ -45,6 +51,5 @@ public class Address {
     private String recipient;
 
     private String phoneNumber;
-
 
 }
