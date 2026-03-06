@@ -36,17 +36,20 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         boolean isTmpUser = hasAuthority(oauth2User, "ROLE_TMP");
         String accessToken = jwtTokenProvider.createAccessToken(Long.valueOf(oauth2User.getName()));
 
-        if(isTmpUser){ //임시 유저일 경우 회원가입 프론트 URL로 리다이렉트
+        if(isTmpUser){
             String targetUrl = UriComponentsBuilder.fromUriString(frontBaseUrl)
-                .path("/signup")
+                .path("/callback")
                 .queryParam("accessToken", accessToken)
+                .queryParam("status", "NEW_MEMBER")
                 .build()
                 .toUriString();
 
             redirectStrategy.sendRedirect(request, response, targetUrl);
         } else {
             String targetUrl = UriComponentsBuilder.fromUriString(frontBaseUrl)
+                .path("/callback")
                 .queryParam("accessToken", accessToken)
+                .queryParam("status", "SUCCESS")
                 .build()
                 .toUriString();
 

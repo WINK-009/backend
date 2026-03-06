@@ -3,11 +3,7 @@ package com.wink.gongongu.domain.user.controller;
 import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
-import com.wink.gongongu.domain.user.entity.User;
-import com.wink.gongongu.domain.user.entity.UserType;
-import com.wink.gongongu.domain.user.exception.UserErrorCode;
 import com.wink.gongongu.domain.user.service.UserService;
-import com.wink.gongongu.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,10 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerSpec {
 
     private final UserService userService;
 
+    @Override
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public SignUpResponse singUp(@RequestBody SignUpRequest request,

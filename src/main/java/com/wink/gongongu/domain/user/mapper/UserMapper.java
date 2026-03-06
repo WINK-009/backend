@@ -1,6 +1,5 @@
 package com.wink.gongongu.domain.user.mapper;
 
-import com.wink.gongongu.auth.dto.LoginResponse;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
@@ -26,12 +25,4 @@ public class UserMapper {
             .build();
     }
 
-    public static LoginResponse toLoginResponse(User user, String accessToken) {
-        return LoginResponse.builder()
-            .userId(user.getId())
-            .role(user.getUserType())
-            .nickname(user.getNickname())
-            .accessToken(accessToken)
-            .build();
-    }
 }

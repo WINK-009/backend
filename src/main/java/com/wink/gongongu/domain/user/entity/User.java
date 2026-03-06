@@ -41,10 +41,11 @@ public class User {
     private String region;
 
     @Builder
-    public User(String nickname,String kakaoId, UserType userType){
+    public User(String nickname,String kakaoId, UserType userType, String region){
         this.nickname = nickname;
         this.kakaoId=kakaoId;
         this.userType=userType;
+        this.region=region;
     }
 
     public void signUp(SignUpRequest request) {
