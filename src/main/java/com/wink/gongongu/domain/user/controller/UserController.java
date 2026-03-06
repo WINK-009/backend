@@ -4,11 +4,14 @@ import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
 import com.wink.gongongu.domain.user.dto.UserProfileResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateRequest;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateResponse;
 import com.wink.gongongu.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +36,12 @@ public class UserController implements UserControllerSpec {
     @GetMapping
     public UserProfileResponse getUserProfile(@AuthenticationPrincipal UserPrincipal principal) {
         return userService.getUserProfile(principal.userId());
+    }
+
+    @PatchMapping
+    public UserProfileUpdateResponse updateUserProfile(@RequestBody UserProfileUpdateRequest request,
+        @AuthenticationPrincipal UserPrincipal principal) {
+        return userService.updateUserProfile(principal.userId(), request);
     }
 
 }

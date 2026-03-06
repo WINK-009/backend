@@ -3,12 +3,15 @@ package com.wink.gongongu.domain.user.service;
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
 import com.wink.gongongu.domain.user.dto.UserProfileResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateRequest;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateResponse;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.exception.UserErrorCode;
 import com.wink.gongongu.domain.user.mapper.UserMapper;
 import com.wink.gongongu.domain.user.repository.UserRepository;
 import com.wink.gongongu.global.exception.BusinessException;
+import jakarta.transaction.TransactionScoped;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,5 +45,13 @@ public class UserService {
     public UserProfileResponse getUserProfile(Long userId) {
         User user = findById(userId);
         return UserMapper.toUserProfileResponse(user);
+    }
+
+    @Transactional
+    public UserProfileUpdateResponse updateUserProfile(Long userId, UserProfileUpdateRequest request) {
+        User user = findById(userId);
+        user.updateNickname(request.nickname());
+
+        return UserMapper.toUserProfileUpdateResponse(user);
     }
 }

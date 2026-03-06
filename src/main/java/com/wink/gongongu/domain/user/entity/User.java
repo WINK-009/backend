@@ -54,4 +54,8 @@ public class User {
         this.businessCode = request.businessCode();
         this.region = request.region();
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
