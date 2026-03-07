@@ -2,13 +2,13 @@ package com.wink.gongongu.global.service;
 
 import com.wink.gongongu.global.exception.BusinessException;
 import com.wink.gongongu.global.exception.S3ErrorCode;
-import com.wink.gongongu.global.props.S3Properties;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -27,7 +27,12 @@ public class S3ImageService {
     );
 
     private final S3Client s3Client;
-    private final S3Properties s3Properties;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${cloud.aws.s3.public-base-url}")
+    private String publicBaseUrl;
 
     public String uploadImage(MultipartFile file) throws IOException {
         validateImage(file);
@@ -36,7 +41,7 @@ public class S3ImageService {
         String key = createKey(extension); //s3 key 생성
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder() //s3에 업로드 요청 객체 생성
-            .bucket(s3Properties.bucket())
+            .bucket(bucket)
             .key(key)
             .contentType(file.getContentType())
             .build();
@@ -51,7 +56,7 @@ public class S3ImageService {
 
     public String getPublicUrl(String key) {
         String encodedKey = encodeKey(key); //url 깨지지 않게 인코딩
-        return s3Properties.publicBaseUrl() + "/" + encodedKey;
+        return publicBaseUrl + "/" + encodedKey;
     }
 
     private void validateImage(MultipartFile file) {
