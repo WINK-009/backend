@@ -34,20 +34,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         boolean isTmpUser = hasAuthority(oauth2User, "ROLE_TMP");
-        String loginToken = jwtTokenProvider.createLoginToken(Long.valueOf(oauth2User.getName()));
-        addLoginTokenCookie(response,loginToken);
+        String accessToken = jwtTokenProvider.createAccessToken(Long.valueOf(oauth2User.getName()));
 
-        if(isTmpUser){ //임시 유저일 경우 회원가입 프론트 URL로 리다이렉트
+        if(isTmpUser){
             String targetUrl = UriComponentsBuilder.fromUriString(frontBaseUrl)
-                .path("/signup")
-//                .queryParam("oauthId", oauth2User.getName())
+                .path("/callback")
+                .queryParam("accessToken", accessToken)
+                .queryParam("status", "NEW_MEMBER")
                 .build()
                 .toUriString();
 
             redirectStrategy.sendRedirect(request, response, targetUrl);
         } else {
             String targetUrl = UriComponentsBuilder.fromUriString(frontBaseUrl)
-//                .queryParam("userId", oauth2User.getName())
+                .path("/callback")
+                .queryParam("accessToken", accessToken)
+                .queryParam("status", "SUCCESS")
                 .build()
                 .toUriString();
 
@@ -65,15 +67,4 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         return false;
     }
 
-    private void addLoginTokenCookie(HttpServletResponse response, String token) {
-        ResponseCookie cookie = ResponseCookie.from("LOGIN_TOKEN", token)
-            .httpOnly(true)
-            .secure(true)
-            .sameSite("None")
-            .path("/")
-            .maxAge(86400) // 1일
-            .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
 }

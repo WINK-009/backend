@@ -1,4 +1,4 @@
-package com.wink.gongongu.auth.dto;
+package com.wink.gongongu.domain.user.dto;
 
 import com.wink.gongongu.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +13,7 @@ public record SignUpRequest(
     @Schema(example = "서울특별시 강남구", description = "사용자 지역(거래 행정구역), 개인형인 경우만 필수")
     String region,
 
-    @Schema(example = "1234567890", description = "사업자 등록 번호(기업형일 경우에만 필수)")
+    @Schema(nullable = true, example ="null", description = "사업자 등록 번호(기업형일 경우에만 필수)")
     String businessCode
 ) {
 

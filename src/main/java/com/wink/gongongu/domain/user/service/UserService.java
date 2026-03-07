@@ -1,9 +1,11 @@
 package com.wink.gongongu.domain.user.service;
 
-import com.wink.gongongu.auth.dto.SignUpRequest;
+import com.wink.gongongu.domain.user.dto.SignUpRequest;
+import com.wink.gongongu.domain.user.dto.SignUpResponse;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.exception.UserErrorCode;
+import com.wink.gongongu.domain.user.mapper.UserMapper;
 import com.wink.gongongu.domain.user.repository.UserRepository;
 import com.wink.gongongu.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,16 @@ public class UserService {
             .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
     }
 
-    public User signUp(Long userId, SignUpRequest request) {
+    @Transactional
+    public SignUpResponse signUp(Long userId, SignUpRequest request) {
+        if(request.role()!= UserType.INDIVIDUAL && request.role()!= UserType.BUSINESS){
+            throw new BusinessException(UserErrorCode.INVALID_USER_TYPE);
+        }
         User user = findById(userId);
-
         if(user.getUserType()!= UserType.TMP){
             throw new BusinessException(UserErrorCode.USER_ALREADY_SIGNED_UP);
         }
         user.signUp(request);
-        return user;
+        return UserMapper.toSignUpResponse(user);
     }
 }

@@ -1,5 +1,6 @@
 package com.wink.gongongu.auth.filter;
 
+import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.auth.exception.AuthErrorCode;
 import com.wink.gongongu.auth.jwt.TokenStatus;
 import com.wink.gongongu.auth.jwt.service.JwtTokenProvider;
@@ -41,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserType userType = user.getUserType();
 
             UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(user, null,
+                new UsernamePasswordAuthenticationToken(new UserPrincipal(userId), null,
                     List.of(new SimpleGrantedAuthority("ROLE_"+userType)));
 
             SecurityContextHolder.getContext().setAuthentication(auth);

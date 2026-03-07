@@ -1,4 +1,4 @@
-package com.wink.gongongu.auth.dto;
+package com.wink.gongongu.domain.user.dto;
 
 import com.wink.gongongu.domain.user.entity.UserType;
 import lombok.Builder;
@@ -9,8 +9,7 @@ public record SignUpResponse(
     UserType role,
     String nickname,
     String region,
-    String businessCode,
-    String accessToken
+    String businessCode
 ) {
 
 }
