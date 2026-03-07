@@ -20,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users/addresses")
 @RequiredArgsConstructor
-public class AddressController {
+public class AddressController implements AddressControllerSpec{
 
     private final AddressService addressService;
 
+    @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserAddressCreateResponse createAddress(@RequestBody UserAddressCreateRequest request,
@@ -31,11 +32,13 @@ public class AddressController {
         return addressService.createAddress(principal.userId(), request);
     }
 
+    @Override
     @GetMapping
     public UserAddressesResponse getAddresses(@AuthenticationPrincipal UserPrincipal principal) {
         return addressService.getUserAddresses(principal.userId());
     }
 
+    @Override
     @GetMapping("/{addressId}")
     public UserAddressDetailResponse getAddressDetail(@AuthenticationPrincipal UserPrincipal principal,
         @PathVariable("addressId") Long addressId) {

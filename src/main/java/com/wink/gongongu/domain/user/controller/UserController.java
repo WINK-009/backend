@@ -37,11 +37,13 @@ public class UserController implements UserControllerSpec {
         return userService.signUp(principal.userId(), request);
     }
 
+    @Override
     @GetMapping
     public UserProfileResponse getUserProfile(@AuthenticationPrincipal UserPrincipal principal) {
         return userService.getUserProfile(principal.userId());
     }
 
+    @Override
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserProfileUpdateResponse updateUserProfile(
         @RequestPart(value="image", required = false) MultipartFile multipartFile,
