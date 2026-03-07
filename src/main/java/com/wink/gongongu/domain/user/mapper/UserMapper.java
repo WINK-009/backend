@@ -39,6 +39,7 @@ public class UserMapper {
 
     public static UserProfileUpdateResponse toUserProfileUpdateResponse(User user) {
         return UserProfileUpdateResponse.builder()
+            .profileImageUrl(user.getProfileImageUrl())
             .nickname(user.getNickname())
             .build();
     }

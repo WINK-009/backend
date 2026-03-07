@@ -55,7 +55,8 @@ public class User {
         this.region = request.region();
     }
 
-    public void updateNickname(String nickname) {
+    public void updateProfile(String nickname, String profileImageUrl) {
         this.nickname = nickname;
+        this.profileImageUrl=profileImageUrl;
     }
 }
