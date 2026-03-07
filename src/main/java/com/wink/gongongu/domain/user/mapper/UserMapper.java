@@ -34,6 +34,7 @@ public class UserMapper {
             .role(user.getUserType())
             .payMoney(user.getPayMoney())
             .businessCode(user.getBusinessCode())
+            .profileImageUrl(user.getProfileImageUrl())
             .build();
     }
 
