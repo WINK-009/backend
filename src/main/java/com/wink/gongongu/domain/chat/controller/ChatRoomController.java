@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.chat.controller;
 
+import com.wink.gongongu.domain.chat.dto.ChatMessageListResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomDetailResponse;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,5 +33,15 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.OK)
     public ChatRoomDetailResponse getChatRoomDetail(@PathVariable Long chatRoomId) {
         return chatRoomService.getChatRoomDetail(chatRoomId);
+    }
+
+    @GetMapping("/{chatRoomId}/messages")
+    @ResponseStatus(HttpStatus.OK)
+    public ChatMessageListResponse getChatMessages(
+        @PathVariable Long chatRoomId,
+        @RequestParam(required = false) Long cursor,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        return chatRoomService.getChatMessages(chatRoomId, cursor, size);
     }
 }
