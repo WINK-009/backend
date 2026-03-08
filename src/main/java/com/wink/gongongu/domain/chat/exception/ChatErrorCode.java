@@ -12,7 +12,8 @@ public enum ChatErrorCode implements ErrorCode {
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Chat room not found."),
     CHAT_ROOM_ALREADY_EXISTS(HttpStatus.CONFLICT, "Chat room already exists for this post."),
     INVALID_CHAT_TYPE(HttpStatus.BAD_REQUEST, "Invalid chat room type."),
-    INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "Invalid schedule time.");
+    INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "Invalid schedule time."),
+    INVALID_CHAT_MESSAGE(HttpStatus.BAD_REQUEST, "Invalid chat message.");
 
     private final HttpStatus httpStatus;
     private final String message;

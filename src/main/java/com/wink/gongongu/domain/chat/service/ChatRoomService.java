@@ -2,6 +2,7 @@ package com.wink.gongongu.domain.chat.service;
 
 import com.wink.gongongu.domain.chat.dto.ChatMessageListResponse;
 import com.wink.gongongu.domain.chat.dto.ChatMessageResponse;
+import com.wink.gongongu.domain.chat.dto.ChatMessageSendRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomDetailResponse;
@@ -111,6 +112,34 @@ public class ChatRoomService {
             : null;
 
         return new ChatMessageListResponse(items, messages.hasNext(), nextCursor);
+    }
+
+    @Transactional
+    public ChatMessageResponse sendChatMessage(Long chatRoomId, ChatMessageSendRequest request) {
+        if (!chatRoomRepository.existsById(chatRoomId)) {
+            throw new BusinessException(ChatErrorCode.CHAT_ROOM_NOT_FOUND);
+        }
+
+        if (request == null || request.senderId() == null || request.content() == null
+            || request.content().isBlank()) {
+            throw new BusinessException(ChatErrorCode.INVALID_CHAT_MESSAGE);
+        }
+
+        ChatMessage message = ChatMessage.builder()
+            .chatRoomId(chatRoomId)
+            .userId(request.senderId())
+            .content(request.content().trim())
+            .build();
+
+        ChatMessage saved = chatMessageRepository.save(message);
+
+        return new ChatMessageResponse(
+            saved.getChatMessageId(),
+            saved.getUserId(),
+            request.senderNickname(),
+            saved.getContent(),
+            saved.getCreatedAt()
+        );
     }
 
     @Transactional
