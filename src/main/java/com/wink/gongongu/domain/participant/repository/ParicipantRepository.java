@@ -35,7 +35,7 @@ public interface ParicipantRepository extends JpaRepository<Participant, Long> {
 
     @Query("""
     select distinct p.postId
-    from Participant p 
+    from Participant p
     where p.userId.id = :userId
         and p.deleted = false 
     order by p.postId.createdAt desc 
@@ -43,4 +43,5 @@ public interface ParicipantRepository extends JpaRepository<Participant, Long> {
     List<Post> JoinedList(@Param("userId") Long userId);
 
     Optional<Participant> findByUserId_IdAndPostId_PostIdAndDeletedFalse(Long userId, Long postId);
+
 }

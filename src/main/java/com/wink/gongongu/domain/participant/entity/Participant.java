@@ -39,11 +39,22 @@ public class Participant {
         p.userId = user;
         p.postId = post;
         p.quantity = quantity;
+        p.ishost = false;
         p.deleted = false;
         return p;
     }
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public static Participant host(User user, Post post) {
+        Participant p = new Participant();
+        p.userId = user;
+        p.postId = post;
+        p.quantity = 0;
+        p.deleted = false;
+        p.ishost = true;
+        return p;
     }
 }

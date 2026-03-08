@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.service;
 
+import com.wink.gongongu.domain.participant.entity.Participant;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
 import com.wink.gongongu.domain.participant.repository.PostJoinedSumRow;
 import com.wink.gongongu.domain.participant.service.ParticipantService;
@@ -43,8 +44,12 @@ public class PostService {
         } else {
             validateIndividual(request);
             Post post = Post.create(user, request, PostType.INDIVIDUAL);
+            Post saved = postRepository.save(post);
+            paricipantRepository.save(Participant.host(user, saved));
             return postRepository.save(post).getPostId();
         }
+
+
     }
     private void validateBusiness(UploadPostRequest req) {
         // BUSINESS: price 필수

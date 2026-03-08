@@ -35,9 +35,19 @@ public class ParticipantService {
         } // 초과 참여 방지
 
 
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+
+        if (user == post.getUserId()){
+            throw new IllegalArgumentException("자신이 만든 방에는 참여가 불가능합니다.");
+        }
+
+        Participant participant = paricipantRepository.findByUserId_IdAndPostId_PostIdAndDeletedFalse(userId, postId)
+                .orElse(null);
+        if (participant != null ){
+            throw new IllegalArgumentException("이미 참여한 공구입니다.");
+        }
+
         paricipantRepository.save(Participant.of(user, post, q));
 
         int newJoined = joined + q;
