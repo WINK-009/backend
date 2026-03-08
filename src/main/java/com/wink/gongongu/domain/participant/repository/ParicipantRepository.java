@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ParicipantRepository extends JpaRepository<Participant, Long> {
     @Query("""
@@ -40,4 +41,6 @@ public interface ParicipantRepository extends JpaRepository<Participant, Long> {
     order by p.postId.createdAt desc 
 """)
     List<Post> JoinedList(@Param("userId") Long userId);
+
+    Optional<Participant> findByUserId_IdAndPostId_PostIdAndDeletedFalse(Long userId, Long postId);
 }

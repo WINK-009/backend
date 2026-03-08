@@ -32,4 +32,13 @@ public class ParticipantController {
     ) {
         return ResponseEntity.ok(participantService.JoinedPostList(principal.userId()));
     }
+
+    @DeleteMapping("/posts/{postId}/join")
+    public ResponseEntity<Void> deletePost(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long postId
+    ){
+        participantService.deleteJoin(principal.userId(), postId);
+        return ResponseEntity.noContent().build();
+    }
 }

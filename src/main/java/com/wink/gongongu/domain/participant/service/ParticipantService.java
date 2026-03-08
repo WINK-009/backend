@@ -46,6 +46,16 @@ public class ParticipantService {
         return new JoinPostResponse(postId, userId, q, newJoined, remaining);
     }
 
+    @Transactional
+    public void deleteJoin(Long userId, Long postId){
+        Post post = postRepository.findByPostId(postId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        Participant participant = paricipantRepository.findByUserId_IdAndPostId_PostIdAndDeletedFalse(userId, postId)
+                .orElseThrow(()-> new IllegalArgumentException("참여 정보 없음"));
+        participant.setDeleted(true);
+    }
+
 
     @Transactional
     public List<PostListResponse> JoinedPostList(Long userId){

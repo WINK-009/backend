@@ -42,4 +42,8 @@ public class Participant {
         p.deleted = false;
         return p;
     }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }
