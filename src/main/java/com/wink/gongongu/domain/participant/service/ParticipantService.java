@@ -4,13 +4,18 @@ import com.wink.gongongu.domain.participant.dto.JoinPostResponse;
 import com.wink.gongongu.domain.participant.dto.JoinRequest;
 import com.wink.gongongu.domain.participant.entity.Participant;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
+import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.repository.UserRepository;
+import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +36,6 @@ public class ParticipantService {
 
 
 
-
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
         paricipantRepository.save(Participant.of(user, post, q));
@@ -43,4 +46,15 @@ public class ParticipantService {
         return new JoinPostResponse(postId, userId, q, newJoined, remaining);
     }
 
+
+    @Transactional
+    public List<PostListResponse> JoinedPostList(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        return paricipantRepository.JoinedList(userId)
+                .stream()
+                .map(PostListResponse::from)
+                .toList();
+
+    }
 }

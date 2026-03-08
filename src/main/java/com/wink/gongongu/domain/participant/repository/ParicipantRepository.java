@@ -1,6 +1,7 @@
 package com.wink.gongongu.domain.participant.repository;
 
 import com.wink.gongongu.domain.participant.entity.Participant;
+import com.wink.gongongu.domain.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,13 @@ public interface ParicipantRepository extends JpaRepository<Participant, Long> {
         Long getPostId();
         Integer getJoinedQuantitySum();
     }
+
+    @Query("""
+    select distinct p.postId
+    from Participant p 
+    where p.userId.id = :userId
+        and p.deleted = false 
+    order by p.postId.createdAt desc 
+""")
+    List<Post> JoinedList(@Param("userId") Long userId);
 }
