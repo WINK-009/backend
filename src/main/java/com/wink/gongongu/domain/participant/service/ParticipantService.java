@@ -1,0 +1,70 @@
+package com.wink.gongongu.domain.participant.service;
+
+import com.wink.gongongu.domain.participant.dto.JoinPostResponse;
+import com.wink.gongongu.domain.participant.dto.JoinRequest;
+import com.wink.gongongu.domain.participant.entity.Participant;
+import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
+import com.wink.gongongu.domain.post.dto.PostListResponse;
+import com.wink.gongongu.domain.post.entity.Post;
+import com.wink.gongongu.domain.post.repository.PostRepository;
+import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.repository.UserRepository;
+import jakarta.servlet.http.Part;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ParticipantService {
+    private final ParicipantRepository paricipantRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+
+    @Transactional
+    public JoinPostResponse joinPost(Long userId, Long postId, JoinRequest req){
+        int q = req.quantity();
+        Post post = postRepository.findByPostId(postId);
+
+        int joined = paricipantRepository.sumJoinedQuantity(postId);
+        if (joined + q > post.getMaxQuantity()) {
+            throw new IllegalArgumentException("남은 수량을 초과했습니다");
+        } // 초과 참여 방지
+
+
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        paricipantRepository.save(Participant.of(user, post, q));
+
+        int newJoined = joined + q;
+        int remaining = post.getMaxQuantity() - newJoined;
+
+        return new JoinPostResponse(postId, userId, q, newJoined, remaining);
+    }
+
+    @Transactional
+    public void deleteJoin(Long userId, Long postId){
+        Post post = postRepository.findByPostId(postId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        Participant participant = paricipantRepository.findByUserId_IdAndPostId_PostIdAndDeletedFalse(userId, postId)
+                .orElseThrow(()-> new IllegalArgumentException("참여 정보 없음"));
+        participant.setDeleted(true);
+    }
+
+
+    @Transactional
+    public List<PostListResponse> JoinedPostList(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        return paricipantRepository.JoinedList(userId)
+                .stream()
+                .map(PostListResponse::from)
+                .toList();
+
+    }
+}
