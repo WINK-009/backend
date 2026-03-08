@@ -1,6 +1,7 @@
 package com.wink.gongongu.domain.user;
 
 import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.entity.UserType;
 import com.wink.gongongu.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -19,6 +20,9 @@ public class UserInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
          User testUser1 = User.builder()
             .nickname("테스트유저")
+             .userType(UserType.INDIVIDUAL)
+             .region("서울특별시 강남구")
+             .kakaoId("1234567890")
             .build();
 
          userRepository.save(testUser1);

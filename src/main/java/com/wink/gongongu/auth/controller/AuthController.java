@@ -12,13 +12,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthControllerSpec {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Override
     @PostMapping("/test-issue")
     @ResponseStatus(HttpStatus.CREATED)
     public TestTokenIssueResponse issueTestJwt() {
         return new TestTokenIssueResponse(jwtTokenProvider.createAccessToken(1L));
     }
+
+
 }

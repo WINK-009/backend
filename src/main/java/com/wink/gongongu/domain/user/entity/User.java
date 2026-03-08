@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.user.entity;
 
+import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -40,7 +41,17 @@ public class User {
     private String region;
 
     @Builder
-    public User(String nickname){
+    public User(String nickname,String kakaoId, UserType userType, String region){
         this.nickname = nickname;
+        this.kakaoId=kakaoId;
+        this.userType=userType;
+        this.region=region;
+    }
+
+    public void signUp(SignUpRequest request) {
+        this.nickname = request.nickname();
+        this.userType = request.role();
+        this.businessCode = request.businessCode();
+        this.region = request.region();
     }
 }
