@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.participant.controller;
 
+import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.participant.dto.JoinPostResponse;
 import com.wink.gongongu.domain.participant.dto.JoinRequest;
 import com.wink.gongongu.domain.participant.service.ParticipantService;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 @RequiredArgsConstructor
 public class ParticipantController {
@@ -19,10 +22,10 @@ public class ParticipantController {
 
     @PostMapping("/posts/{postId}/join")
     public ResponseEntity<JoinPostResponse> joinPost(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long postId,
-            @RequestBody JoinRequest req
-    ) {
-        return ResponseEntity.ok(participantService.joinPost(user.getId(), postId, req));
+            @RequestBody JoinRequest req) {
+        return ResponseEntity.ok(participantService.joinPost(principal.userId(), postId, req));
+
     }
 }

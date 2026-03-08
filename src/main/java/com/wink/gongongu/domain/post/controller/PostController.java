@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.controller;
 
+import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.post.dto.PostDetailResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
@@ -29,9 +30,9 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal User user, @RequestBody UploadPostRequest request) {
+    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestBody UploadPostRequest request) {
         //Long userId = extractUserId(authentication);
-        Long userId = user.getId();
+        Long userId = principal.userId();
         Long postId = postService.postRegister(userId, request);
         return ResponseEntity.status(201).body(new UploadPostResponse(postId));
     }

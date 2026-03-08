@@ -31,6 +31,8 @@ public class ParticipantService {
 
 
 
+
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
         paricipantRepository.save(Participant.of(user, post, q));
