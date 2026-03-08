@@ -4,9 +4,13 @@ import com.wink.gongongu.domain.chat.dto.ChatMessageListResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomDetailResponse;
+import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleConfirmRequest;
+import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleResponse;
 import com.wink.gongongu.domain.chat.service.ChatRoomService;
+import com.wink.gongongu.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,5 +47,22 @@ public class ChatRoomController {
         @RequestParam(defaultValue = "20") int size
     ) {
         return chatRoomService.getChatMessages(chatRoomId, cursor, size);
+    }
+
+    @PostMapping("/{chatRoomId}/schedule/confirm")
+    @ResponseStatus(HttpStatus.OK)
+    public ChatRoomScheduleResponse confirmSchedule(
+        @PathVariable Long chatRoomId,
+        @RequestBody ChatRoomScheduleConfirmRequest request,
+        @AuthenticationPrincipal User user
+    ) {
+        Long confirmedByUserId = user == null ? null : user.getId();
+        return chatRoomService.confirmSchedule(chatRoomId, request, confirmedByUserId);
+    }
+
+    @GetMapping("/{chatRoomId}/schedule")
+    @ResponseStatus(HttpStatus.OK)
+    public ChatRoomScheduleResponse getSchedule(@PathVariable Long chatRoomId) {
+        return chatRoomService.getSchedule(chatRoomId);
     }
 }

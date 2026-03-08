@@ -5,11 +5,15 @@ import com.wink.gongongu.domain.chat.dto.ChatMessageResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomDetailResponse;
+import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleConfirmRequest;
+import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleResponse;
 import com.wink.gongongu.domain.chat.entity.ChatMessage;
 import com.wink.gongongu.domain.chat.entity.ChatRoom;
+import com.wink.gongongu.domain.chat.entity.ChatRoomSchedule;
 import com.wink.gongongu.domain.chat.exception.ChatErrorCode;
 import com.wink.gongongu.domain.chat.repository.ChatMessageRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomRepository;
+import com.wink.gongongu.domain.chat.repository.ChatRoomScheduleRepository;
 import com.wink.gongongu.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +33,7 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomScheduleRepository chatRoomScheduleRepository;
     private final PostReader postReader;
     // private final ParticipantRepository participantRepository; // inject when participant domain is ready
 
@@ -106,5 +111,54 @@ public class ChatRoomService {
             : null;
 
         return new ChatMessageListResponse(items, messages.hasNext(), nextCursor);
+    }
+
+    @Transactional
+    public ChatRoomScheduleResponse confirmSchedule(
+        Long chatRoomId,
+        ChatRoomScheduleConfirmRequest request,
+        Long confirmedByUserId
+    ) {
+        if (request == null || request.scheduledAt() == null) {
+            throw new BusinessException(ChatErrorCode.INVALID_SCHEDULE_TIME);
+        }
+
+        if (!chatRoomRepository.existsById(chatRoomId)) {
+            throw new BusinessException(ChatErrorCode.CHAT_ROOM_NOT_FOUND);
+        }
+
+        ChatRoomSchedule schedule = chatRoomScheduleRepository.findByChatRoomId(chatRoomId)
+            .map(existing -> {
+                existing.confirm(request.scheduledAt(), confirmedByUserId);
+                return existing;
+            })
+            .orElseGet(() -> ChatRoomSchedule.builder()
+                .chatRoomId(chatRoomId)
+                .scheduledAt(request.scheduledAt())
+                .confirmedByUserId(confirmedByUserId)
+                .build());
+
+        ChatRoomSchedule saved = chatRoomScheduleRepository.save(schedule);
+        return toScheduleResponse(saved);
+    }
+
+    public ChatRoomScheduleResponse getSchedule(Long chatRoomId) {
+        if (!chatRoomRepository.existsById(chatRoomId)) {
+            throw new BusinessException(ChatErrorCode.CHAT_ROOM_NOT_FOUND);
+        }
+
+        return chatRoomScheduleRepository.findByChatRoomId(chatRoomId)
+            .map(this::toScheduleResponse)
+            .orElse(new ChatRoomScheduleResponse(chatRoomId, null, false, null, null));
+    }
+
+    private ChatRoomScheduleResponse toScheduleResponse(ChatRoomSchedule schedule) {
+        return new ChatRoomScheduleResponse(
+            schedule.getChatRoomId(),
+            schedule.getScheduledAt(),
+            true,
+            schedule.getConfirmedByUserId(),
+            schedule.getUpdatedAt()
+        );
     }
 }
