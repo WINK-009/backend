@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @Column
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -53,5 +53,10 @@ public class User {
         this.userType = request.role();
         this.businessCode = request.businessCode();
         this.region = request.region();
+    }
+
+    public void updateProfile(String nickname, String profileImageUrl) {
+        this.nickname = nickname;
+        this.profileImageUrl=profileImageUrl;
     }
 }
