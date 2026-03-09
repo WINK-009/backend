@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.chat.controller;
 
+import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.chat.dto.ChatMessageListResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomCreateResponse;
@@ -7,7 +8,6 @@ import com.wink.gongongu.domain.chat.dto.ChatRoomDetailResponse;
 import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleConfirmRequest;
 import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleResponse;
 import com.wink.gongongu.domain.chat.service.ChatRoomService;
-import com.wink.gongongu.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,9 +54,9 @@ public class ChatRoomController {
     public ChatRoomScheduleResponse confirmSchedule(
         @PathVariable Long chatRoomId,
         @RequestBody ChatRoomScheduleConfirmRequest request,
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal UserPrincipal principal
     ) {
-        Long confirmedByUserId = user == null ? null : user.getId();
+        Long confirmedByUserId = principal == null ? null : principal.userId();
         return chatRoomService.confirmSchedule(chatRoomId, request, confirmedByUserId);
     }
 
