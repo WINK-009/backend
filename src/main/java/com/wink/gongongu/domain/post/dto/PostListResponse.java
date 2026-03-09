@@ -23,7 +23,8 @@ public record PostListResponse(
         String region,
         LocalDate createdAt,
         PostType type,
-        Integer favCount
+        Integer favCount,
+        String image
 ) {
     public static PostListResponse from(Post p) {
         return from(p, 0,0);
@@ -48,7 +49,8 @@ public record PostListResponse(
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
                 p.getType(),
-                favoriteCount
+                favoriteCount,
+                p.getImage()
         );
     }
 }

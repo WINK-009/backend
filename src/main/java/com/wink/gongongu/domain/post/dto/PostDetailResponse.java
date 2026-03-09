@@ -5,6 +5,7 @@ import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.entity.PostType;
 import com.wink.gongongu.domain.user.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,6 @@ public record PostDetailResponse(
         Long postId,
         Long userId,
         String nickname,
-        String profileImageUrl,
         String title,
         Integer price,
         Integer originalprice,
@@ -23,7 +23,8 @@ public record PostDetailResponse(
         PostStatus status,
         String region,
         LocalDate createdAt,
-        PostType type
+        PostType type,
+        String image
 ) {
     public static PostDetailResponse from(Post p, int joinedSum){
         User u = p.getUserId();
@@ -32,7 +33,6 @@ public record PostDetailResponse(
                 p.getPostId(),
                 u.getId(),
                 u.getNickname(),
-                u.getProfileImageUrl(),
                 p.getTitle(),
                 p.getPrice(),
                 p.getOriginalprice(),
@@ -43,7 +43,9 @@ public record PostDetailResponse(
                 p.getStatus(),
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
-                p.getType()
+                p.getType(),
+                p.getImage()
+
         );
     }
 }
