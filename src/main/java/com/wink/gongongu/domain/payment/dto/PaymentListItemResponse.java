@@ -1,0 +1,15 @@
+package com.wink.gongongu.domain.payment.dto;
+
+import com.wink.gongongu.domain.payment.entity.PaymentMethod;
+import com.wink.gongongu.domain.payment.entity.PaymentStatus;
+import java.time.LocalDateTime;
+
+public record PaymentListItemResponse(
+    Long paymentId,
+    Long postId,
+    Integer amount,
+    PaymentMethod method,
+    PaymentStatus status,
+    LocalDateTime createdAt
+) {
+}
