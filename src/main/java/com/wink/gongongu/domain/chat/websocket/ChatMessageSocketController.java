@@ -1,4 +1,4 @@
-package com.wink.gongongu.domain.chat.controller;
+package com.wink.gongongu.domain.chat.websocket;
 
 import com.wink.gongongu.domain.chat.dto.ChatMessageResponse;
 import com.wink.gongongu.domain.chat.dto.ChatMessageSendRequest;

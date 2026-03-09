@@ -1,4 +1,4 @@
-package com.wink.gongongu.domain.chat.config;
+package com.wink.gongongu.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
