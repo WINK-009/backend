@@ -111,10 +111,16 @@ public class PostService {
                         r -> r.getPostId(),
                         r -> r.getJoinedQuantitySum() == null ? 0 : r.getJoinedQuantitySum()
                 ));
+        Map<Long, Integer> favMap = favoriteRepository.countFavByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        r -> r.getPostId(),
+                        r -> r.getFavCount() == null ? 0 : r.getFavCount().intValue()
+                ));
 
         // 3) DTO로 변환 (없으면 0)
         return posts.getContent().stream()
-                .map(p -> PostListResponse.from(p, sumMap.getOrDefault(p.getPostId(), 0)))
+                .map(p -> PostListResponse.from(p, sumMap.getOrDefault(p.getPostId(), 0), favMap.getOrDefault(p.getPostId(),0)))
                 .toList();
     }
 
@@ -163,9 +169,16 @@ public class PostService {
                         r -> r.getJoinedQuantitySum() == null ? 0 : r.getJoinedQuantitySum()
                 ));
 
+        Map<Long, Integer> joinedFavMap = favoriteRepository.countFavByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        r -> r.getPostId(),
+                        r -> r.getFavCount() == null ? 0 : r.getFavCount().intValue()
+                ));
+
         // Page<PostListResponse> 만들기 (pageable/total 유지)
         List<PostListResponse> dtoList = posts.stream()
-                .map(p -> PostListResponse.from(p, joinedSumMap.getOrDefault(p.getPostId(), 0)))
+                .map(p -> PostListResponse.from(p, joinedSumMap.getOrDefault(p.getPostId(), 0), joinedFavMap.getOrDefault(p.getPostId(),0)))
                 .toList();
 
         return new PageImpl<>(dtoList, pageable, postPage.getTotalElements());
@@ -187,12 +200,38 @@ public class PostService {
 
     @Transactional
     public List<PostListResponse> myPost(Long userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new IllegalArgumentException("사용자 없음"));
+        // 1) 내가 만든 글 목록
+        List<Post> posts = postRepository.findAllByUserId_IdOrderByCreatedAtDesc(userId);
 
-        return postRepository.findAllByUserId_IdOrderByCreatedAtDesc(userId)
+        if (posts.isEmpty()) return List.of();
+
+        // 2) postIds 추출
+        List<Long> postIds = posts.stream()
+                .map(Post::getPostId)
+                .toList();
+
+        // 3) 참여 수량 합계 Map (필요 없으면 0으로 넣어도 되지만, 있는 게 더 좋음)
+        Map<Long, Integer> sumMap = participantRepository.sumJoinedQuantityByPostIds(postIds)
                 .stream()
-                .map(PostListResponse::from)
+                .collect(Collectors.toMap(
+                        r -> r.getPostId(),
+                        r -> r.getJoinedQuantitySum() == null ? 0 : r.getJoinedQuantitySum()
+                ));
+
+        // 4) 찜 수 Map
+        Map<Long, Integer> favMap = favoriteRepository.countFavByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        r -> r.getPostId(),
+                        r -> r.getFavCount() == null ? 0 : r.getFavCount().intValue()
+                ));
+
+        return posts.stream()
+                .map(p -> PostListResponse.from(
+                        p,
+                        sumMap.getOrDefault(p.getPostId(), 0),
+                        favMap.getOrDefault(p.getPostId(), 0)
+                ))
                 .toList();
 
     }
