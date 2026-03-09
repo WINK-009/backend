@@ -25,6 +25,7 @@ public interface PostControllerSpec {
             summary = "공구 게시물 작성 API",
             description = """
             INDIVIDUAL 회원의 경우 original price 값 삭제 후 보내야합니다. 
+            - 현재는 개인 회원만 가능
          
             """
     )
