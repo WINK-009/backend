@@ -28,7 +28,11 @@ public class SwaggerConfig {
     private Info apiInfo() {
         return new Info()
             .title("공공구 API 명세서")
-            .description("공공구 백엔드 API 명세서")
+            .description("""
+                발급받은 엑세스토큰은 Authorization 헤더에 "Bearer ${accessToken}" 형태로 보내주세요.<br>
+                테스트용 토큰 발급 API에서 미리 저장된 테스트 유저의 엑세스토큰을 발급받아서 테스트할 수 있습니다.<br>
+                스웨거에서 테스트 시 하단의 Authorize 버튼 눌러서 엑세스토큰 값 복붙하면 자동으로 헤더에 담겨 전송됩니다.
+                """)
             .version("v0");
     }
 }

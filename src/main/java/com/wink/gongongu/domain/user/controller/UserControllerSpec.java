@@ -3,8 +3,13 @@ package com.wink.gongongu.domain.user.controller;
 import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.user.dto.SignUpRequest;
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateRequest;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "유저관련 API")
 public interface UserControllerSpec {
@@ -21,5 +26,21 @@ public interface UserControllerSpec {
             """
     )
     SignUpResponse singUp(SignUpRequest request, UserPrincipal principal);
+
+    @Operation(
+        summary = "프로필 조회 API"
+    )
+    UserProfileResponse getUserProfile(UserPrincipal principal);
+
+    @Operation(
+        summary = "닉네임, 프로필 사진 수정 API",
+        description = """
+            multipart/form-data 형식으로 보내주세요.<br>
+            프사, 닉네임 모두 빈값일 시 에러가 반환되고 둘 중 하나라도 값이 포함되면 값이 있는 필드만 업데이트됩니다. (아예 보내지 않거나 빈값으로 보낸 필드는 기존 정보 유지하여 반환) <br>
+            """
+    )
+    UserProfileUpdateResponse updateUserProfile(MultipartFile multipartFile,
+        UserProfileUpdateRequest request,
+        UserPrincipal principal) throws IOException;
 
 }

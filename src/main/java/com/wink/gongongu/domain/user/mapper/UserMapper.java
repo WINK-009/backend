@@ -1,6 +1,8 @@
 package com.wink.gongongu.domain.user.mapper;
 
 import com.wink.gongongu.domain.user.dto.SignUpResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileResponse;
+import com.wink.gongongu.domain.user.dto.UserProfileUpdateResponse;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
 import lombok.NoArgsConstructor;
@@ -25,4 +27,21 @@ public class UserMapper {
             .build();
     }
 
+    public static UserProfileResponse toUserProfileResponse(User user) {
+        return UserProfileResponse.builder()
+            .nickname(user.getNickname())
+            .region(user.getRegion())
+            .role(user.getUserType())
+            .payMoney(user.getPayMoney())
+            .businessCode(user.getBusinessCode())
+            .profileImageUrl(user.getProfileImageUrl())
+            .build();
+    }
+
+    public static UserProfileUpdateResponse toUserProfileUpdateResponse(User user) {
+        return UserProfileUpdateResponse.builder()
+            .profileImageUrl(user.getProfileImageUrl())
+            .nickname(user.getNickname())
+            .build();
+    }
 }

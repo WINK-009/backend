@@ -28,13 +28,18 @@ spring:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id # 카카오 id 값이 name이 됨
+            user-name-attribute: id # 카카??id 값이 name????
+
+  spring:
+    servlet:
+      multipart:
+        max-file-size: 10MB
 
 jwt:
   secret: "${JWT_SECRET}"
-  access-exp-seconds: 2592000 # 30일
-  refresh-exp-seconds: 2592000 # 30일
-  tmp-exp-seconds: 86400 # 1일
+  access-exp-seconds: 2592000 # 30??
+  refresh-exp-seconds: 2592000 # 30??
+  tmp-exp-seconds: 86400 # 1??
 
 logging:
   level:
@@ -42,3 +47,15 @@ logging:
 
 app:
   front-base-url: ${FRONT_BASE_URL}
+
+cloud:
+  aws:
+    region: ap-northeast-2
+    s3:
+      bucket: ${S3_BUCKET}
+      public-base-url: https://${S3_BUCKET}.s3.ap-northeast-2.amazonaws.com
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY:}
+  confirm-url: https://api.tosspayments.com/v1/payments/confirm
+
