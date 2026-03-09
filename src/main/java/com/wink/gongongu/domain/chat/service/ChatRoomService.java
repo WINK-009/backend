@@ -11,6 +11,7 @@ import com.wink.gongongu.domain.chat.dto.ChatRoomScheduleResponse;
 import com.wink.gongongu.domain.chat.entity.ChatMessage;
 import com.wink.gongongu.domain.chat.entity.ChatRoom;
 import com.wink.gongongu.domain.chat.entity.ChatRoomSchedule;
+import com.wink.gongongu.domain.chat.entity.ChatType;
 import com.wink.gongongu.domain.chat.exception.ChatErrorCode;
 import com.wink.gongongu.domain.chat.repository.ChatMessageRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomRepository;
@@ -119,12 +120,20 @@ public class ChatRoomService {
 
     @Transactional
     public ChatMessageResponse sendChatMessage(Long chatRoomId, Long senderId, ChatMessageSendRequest request) {
-        if (!chatRoomRepository.existsById(chatRoomId)) {
-            throw new BusinessException(ChatErrorCode.CHAT_ROOM_NOT_FOUND);
-        }
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+            .orElseThrow(() -> new BusinessException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
 
         if (request == null || senderId == null || request.content() == null || request.content().isBlank()) {
             throw new BusinessException(ChatErrorCode.INVALID_CHAT_MESSAGE);
+        }
+
+        if (chatRoom.getType() == ChatType.BUSINESS) {
+            postReader.findAuthorUserIdByPostId(chatRoom.getPostId())
+                .ifPresent(authorUserId -> {
+                    if (!authorUserId.equals(senderId)) {
+                        throw new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN);
+                    }
+                });
         }
 
         ChatMessage message = ChatMessage.builder()
