@@ -67,4 +67,8 @@ public class User {
     public void usePayMoney(int amount) {
         this.payMoney -= amount;
     }
+
+    public void updateRegion(String region) {
+        this.region=region;
+    }
 }

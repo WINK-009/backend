@@ -4,14 +4,19 @@ import com.wink.gongongu.auth.dto.UserPrincipal;
 import com.wink.gongongu.domain.address.dto.UserAddressCreateRequest;
 import com.wink.gongongu.domain.address.dto.UserAddressCreateResponse;
 import com.wink.gongongu.domain.address.dto.UserAddressDetailResponse;
+import com.wink.gongongu.domain.address.dto.UserAddressUpdateRequest;
+import com.wink.gongongu.domain.address.dto.UserAddressUpdateResponse;
 import com.wink.gongongu.domain.address.dto.UserAddressesResponse;
 import com.wink.gongongu.domain.address.service.AddressService;
+import com.wink.gongongu.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -43,6 +48,22 @@ public class AddressController implements AddressControllerSpec{
     public UserAddressDetailResponse getAddressDetail(@AuthenticationPrincipal UserPrincipal principal,
         @PathVariable("addressId") Long addressId) {
         return addressService.getAddressDetail(principal.userId(), addressId);
+    }
+
+    @Override
+    @PutMapping("/{addressId}")
+    public UserAddressUpdateResponse updateAddress(@AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable("addressId") Long addressId,
+        @RequestBody UserAddressUpdateRequest request){
+        return addressService.updateAddress(principal.userId(), addressId, request);
+    }
+
+    @Override
+    @DeleteMapping("/{addressId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAddress(@AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable("addressId") Long addressId){
+        addressService.deleteAddress(principal.userId(), addressId);
     }
 
 }
