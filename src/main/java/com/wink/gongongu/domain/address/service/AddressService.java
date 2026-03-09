@@ -25,45 +25,90 @@ public class AddressService {
     private final AddressRepository addressRepository;
     private final UserService userService;
 
-     @Transactional
+    @Transactional
     public UserAddressCreateResponse createAddress(Long userId, UserAddressCreateRequest request) {
-         User user = userService.findById(userId);
+        User user = userService.findById(userId);
 
-         if(request.isDefault()){
-             addressRepository.findByUserAndIsDefaultTrue(user)
-                 .ifPresent(addr -> {
-                     addr.changeDefault(false);
-                 });
-         }
+        if (!addressRepository.existsByUser(user) && !request.isDefault()) {
+            throw new BusinessException(AddressErrorCode.FIRST_ADDRESS_MUST_BE_DEFAULT);
+        }
 
-         Address address = AddressMapper.toEntity(user, request);
-         addressRepository.save(address);
+        if (request.isDefault()) {
+            addressRepository.findByUserAndIsDefaultTrue(user)
+                .ifPresent(addr -> {
+                    addr.changeDefault(false);
+                });
+            user.updateRegion(extractRegion(request.roadAddress()));
+        }
 
-         return AddressMapper.toCreateResponse(address);
-     }
+        Address address = AddressMapper.toEntity(user, request);
+        addressRepository.save(address);
 
-     @Transactional(readOnly = true)
+        return AddressMapper.toCreateResponse(address);
+    }
+
+    private String extractRegion(String roadAddress) {
+        if (roadAddress == null || roadAddress.isBlank()) {
+            return null;
+        }
+
+        String[] parts = roadAddress.split(" ");
+
+        if (parts.length < 2) {
+            return roadAddress;
+        }
+
+        return parts[0] + " " + parts[1];
+    }
+
+    @Transactional(readOnly = true)
     public UserAddressesResponse getUserAddresses(Long userId) {
-         List<Address> addresses = addressRepository.findByUser_IdOrderByIsDefaultDescIdAsc(userId);
-         return AddressMapper.toListResponse(addresses);
-     }
+        List<Address> addresses = addressRepository.findByUser_IdOrderByIsDefaultDescIdAsc(userId);
+        return AddressMapper.toListResponse(addresses);
+    }
 
-     @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public UserAddressDetailResponse getAddressDetail(Long userId, Long addressId) {
-         Address address = addressRepository.findByIdAndUser_Id(addressId, userId)
-             .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
+        Address address = addressRepository.findByIdAndUser_Id(addressId, userId)
+            .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
 
-         return AddressMapper.toDetailResponse(address);
-     }
+        return AddressMapper.toDetailResponse(address);
+    }
 
-     @Transactional
-     public UserAddressUpdateResponse updateAddress(Long userId, Long addressId, UserAddressUpdateRequest request){
-         Address address = addressRepository.findByIdAndUser_Id(addressId, userId)
-             .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
-         address.updateAddress(request);
+    @Transactional
+    public UserAddressUpdateResponse updateAddress(Long userId, Long addressId,
+        UserAddressUpdateRequest request) {
+        Address address = addressRepository.findByIdAndUser_Id(addressId, userId)
+            .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
+        User user = userService.findById(userId);
 
-         return AddressMapper.toUpdateResponse(address);
-     }
+        if (request.isDefault()) {
+            addressRepository.findByUserAndIsDefaultTrue(user)
+                .ifPresent(addr -> {
+                    addr.changeDefault(false);
+                });
+            user.updateRegion(extractRegion(request.roadAddress()));
+        } else if(address.isDefault()){ //기존 기본배송지 설정을 해제할 때
+            throw new BusinessException(AddressErrorCode.DEFAULT_ADDRESS_LEAST_ONE);
+        }
+
+        address.updateAddress(request);
+
+        return AddressMapper.toUpdateResponse(address);
+    }
+
+    @Transactional
+    public void deleteAddress(Long userId, Long addressId) {
+        Address address = addressRepository.findByIdAndUser_Id(addressId, userId)
+            .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
+
+        if (address.isDefault()) {
+            throw new BusinessException(AddressErrorCode.CANNOT_DELETE_DEFAULT_ADDRESS);
+        }
+
+        addressRepository.delete(address);
+
+    }
 
 
 }

@@ -59,4 +59,8 @@ public class User {
         this.nickname = nickname;
         this.profileImageUrl=profileImageUrl;
     }
+
+    public void updateRegion(String region) {
+        this.region=region;
+    }
 }

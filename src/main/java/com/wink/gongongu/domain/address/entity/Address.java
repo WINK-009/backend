@@ -67,6 +67,8 @@ public class Address {
         this.alias= req.zipCode();
         this.memo=req.memo();
         this.isDefault=req.isDefault();
+        this.longitude=req.longitude();
+        this.latitude=req.latitude();
     }
 
 }

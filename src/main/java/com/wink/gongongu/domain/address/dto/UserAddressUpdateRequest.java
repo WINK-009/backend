@@ -8,7 +8,9 @@ public record UserAddressUpdateRequest(
     String zipCode,
     String alias,
     String memo,
-    boolean isDefault
-) {
+    boolean isDefault,
+    double latitude,
+    double longitude
+    ) {
 
 }
