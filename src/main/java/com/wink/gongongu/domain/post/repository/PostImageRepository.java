@@ -22,10 +22,16 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long> {
     """)
     List<MainImageRow> findMainImagesByPostIds(@Param("postIds") List<Long> postIds);
 
+
+
     interface MainImageRow {
         String getImageUrl();
         Long getPostId();
     }
+
+
+
+
 
 
 }

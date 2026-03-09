@@ -35,16 +35,11 @@ public class PostController implements PostControllerSpec {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadPostResponse> postRegister(
             @AuthenticationPrincipal UserPrincipal principal,
-            @RequestPart(value="image", required = false)MultipartFile image,
             @RequestPart(value="images", required = false) List<MultipartFile> images,
             @RequestPart("request") UploadPostRequest request
     ) throws IOException {
         //Long userId = extractUserId(authentication);
 
-        // 1장만 오는 경우도 리스트로 통일
-        if ((images == null || images.isEmpty()) && image != null && !image.isEmpty()) {
-            images = List.of(image);
-        }
 
         Long userId = principal.userId();
         Long postId = postService.postRegister(userId, images, request);
@@ -106,4 +101,15 @@ public class PostController implements PostControllerSpec {
     public ResponseEntity<List<PostListResponse>> myPost(@AuthenticationPrincipal UserPrincipal principal){
         return ResponseEntity.ok(postService.myPost(principal.userId()));
     }
+
+    @DeleteMapping("/{postId}/images/{imageId}")
+    public ResponseEntity<Void> deletePostImage(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long postId,
+            @PathVariable Long imageId
+    ) {
+        postService.deletePostImage(principal.userId(), postId, imageId);
+        return ResponseEntity.noContent().build(); // 204
+    }
+
 }

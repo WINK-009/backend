@@ -6,6 +6,7 @@ import com.wink.gongongu.domain.participant.entity.Participant;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
 import com.wink.gongongu.domain.participant.service.ParticipantService;
 import com.wink.gongongu.domain.post.dto.PostDetailResponse;
+import com.wink.gongongu.domain.post.dto.PostImageResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.entity.Post;
@@ -144,17 +145,14 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
-        String mainImageUrl = postImageRepository.findByPostId_PostIdAndIsMainTrue(postId)
-                .map(PostImage::getImageUrl)
-                .orElse(null);
-
-        List<String> imageUrls = postImageRepository.findAllByPostId_PostIdOrderByImageIdAsc(postId)
+        List<PostImageResponse> images = postImageRepository
+                .findAllByPostId_PostIdOrderByImageIdAsc(postId)
                 .stream()
-                .map(PostImage::getImageUrl)
+                .map(PostImageResponse::from)
                 .toList();
 
         int joinedSum = participantRepository.sumJoinedQuantity(postId);
-        return PostDetailResponse.from(post, joinedSum, mainImageUrl, imageUrls);
+        return PostDetailResponse.from(post, joinedSum, images);
 
     }
 
@@ -278,5 +276,27 @@ public class PostService {
 
     }
 
+    @Transactional
+    public void deletePostImage(Long userId, Long postId, Long imageId){
+        Post post = postRepository.findByPostId(postId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new IllegalArgumentException("사용자 없음"));
+
+        PostImage target = postImageRepository.findById(imageId)
+                .orElseThrow(() -> new IllegalArgumentException("이미지 없음"));
+
+        boolean wasMain = target.isMain(); //지우는게 메인사진인지 아닌지
+        postImageRepository.delete(target);
+
+        if (wasMain) { //지우는게 메인 사진이면 메인 자리 양도 해줘야함
+            List<PostImage> remain = postImageRepository.findAllByPostId_PostIdOrderByImageIdAsc(postId);
+            if (!remain.isEmpty()) {
+                PostImage newMain = remain.get(0);
+                newMain.setMain(true);
+                postImageRepository.save(newMain);
+            }
+        }
+
+    }
 
 }

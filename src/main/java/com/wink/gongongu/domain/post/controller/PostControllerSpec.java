@@ -31,7 +31,6 @@ public interface PostControllerSpec {
     )
     ResponseEntity<UploadPostResponse> postRegister(
             UserPrincipal principal,
-            MultipartFile image,
             List<MultipartFile> images,
             UploadPostRequest request
     )throws IOException;

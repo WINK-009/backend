@@ -25,10 +25,9 @@ public record PostDetailResponse(
         String region,
         LocalDate createdAt,
         PostType type,
-        String mainImageUrl,
-        List<String> imageUrls
+        java.util.List<PostImageResponse> images
 ) {
-    public static PostDetailResponse from(Post p, int joinedSum, String mainImageUrl, List<String> imageUrls){
+    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images){
         User u = p.getUserId();
         int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
         return new PostDetailResponse(
@@ -46,8 +45,7 @@ public record PostDetailResponse(
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
                 p.getType(),
-                mainImageUrl,
-                imageUrls
+                images
 
         );
     }

@@ -41,4 +41,6 @@ public class ParticipantController implements ParticipantControllerSpec {
         participantService.deleteJoin(principal.userId(), postId);
         return ResponseEntity.noContent().build();
     }
+
+
 }
