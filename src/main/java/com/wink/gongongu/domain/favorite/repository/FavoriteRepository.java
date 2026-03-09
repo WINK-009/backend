@@ -18,4 +18,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite,Long> {
         order by f.favId desc
     """)
     List<Post> findFavPosts(@Param("userId") Long userId);
+
+    void deleteByPostId_PostId(Long postId);
 }

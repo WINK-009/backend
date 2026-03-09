@@ -34,7 +34,7 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/posts/{postId}/join")
-    public ResponseEntity<Void> deletePost(
+    public ResponseEntity<Void> deleteJoin(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long postId
     ){

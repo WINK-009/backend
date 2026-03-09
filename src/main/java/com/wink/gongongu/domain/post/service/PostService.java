@@ -1,5 +1,7 @@
 package com.wink.gongongu.domain.post.service;
 
+import com.wink.gongongu.domain.favorite.repository.FavoriteRepository;
+import com.wink.gongongu.domain.favorite.service.FavoriteService;
 import com.wink.gongongu.domain.participant.entity.Participant;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
 import com.wink.gongongu.domain.participant.repository.PostJoinedSumRow;
@@ -32,6 +34,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final ParicipantRepository paricipantRepository;
     private final ParticipantService participantService;
+    private final FavoriteService favoriteService;
+    private final FavoriteRepository favoriteRepository;
 
     @Transactional
     public Long postRegister(Long userId, UploadPostRequest request){
@@ -154,6 +158,18 @@ public class PostService {
         return new PageImpl<>(dtoList, pageable, postPage.getTotalElements());
 
     }
+    @Transactional
+    public void deletePost(Long userId, Long postId){
+        Post post = postRepository.findByPostId(postId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new IllegalArgumentException("사용자 없음"));
 
+        if (post.getUserId() == user){
+
+            paricipantRepository.deleteByPostId_PostId(postId);
+            favoriteRepository.deleteByPostId_PostId(postId);
+            postRepository.delete(post);
+        }
+    }
 
 }

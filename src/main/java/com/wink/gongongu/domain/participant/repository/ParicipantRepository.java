@@ -43,5 +43,5 @@ public interface ParicipantRepository extends JpaRepository<Participant, Long> {
     List<Post> JoinedList(@Param("userId") Long userId);
 
     Optional<Participant> findByUserId_IdAndPostId_PostIdAndDeletedFalse(Long userId, Long postId);
-
+    void deleteByPostId_PostId(Long postId);
 }
