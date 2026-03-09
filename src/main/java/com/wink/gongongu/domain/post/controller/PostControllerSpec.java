@@ -29,7 +29,12 @@ public interface PostControllerSpec {
          
             """
     )
-    ResponseEntity<UploadPostResponse> postRegister(UserPrincipal principal, MultipartFile image, UploadPostRequest request) throws IOException;
+    ResponseEntity<UploadPostResponse> postRegister(
+            UserPrincipal principal,
+            MultipartFile image,
+            List<MultipartFile> images,
+            UploadPostRequest request
+    )throws IOException;
 
     @Operation(
             summary = "공구 게시물 상세 조회 API"

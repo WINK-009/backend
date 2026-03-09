@@ -9,8 +9,10 @@ import com.wink.gongongu.domain.post.dto.PostDetailResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.dto.UploadPostRequest;
 import com.wink.gongongu.domain.post.entity.Post;
+import com.wink.gongongu.domain.post.entity.PostImage;
 import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.entity.PostType;
+import com.wink.gongongu.domain.post.repository.PostImageRepository;
 import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
@@ -38,15 +40,12 @@ public class PostService {
     private final FavoriteService favoriteService;
     private final FavoriteRepository favoriteRepository;
     private final S3ImageService s3ImageService;
+    private final PostImageRepository postImageRepository;
 
     @Transactional
-    public Long postRegister(Long userId, MultipartFile image, UploadPostRequest request) throws IOException {
+    public Long postRegister(Long userId, List<MultipartFile> images, UploadPostRequest request) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId));
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            imageUrl = s3ImageService.uploadImage(image);
-        }
 
         Post post;
         if (user.getUserType() == UserType.BUSINESS) {
@@ -56,12 +55,22 @@ public class PostService {
             validateIndividual(request);
             post = Post.create(user, request, PostType.INDIVIDUAL);
         }
+        Post saved = postRepository.save(post);
+        if (images != null && !images.isEmpty()) {
+            for (int i = 0; i < images.size(); i++) {
+                MultipartFile f = images.get(i);
+                if (f == null || f.isEmpty()) continue;
 
-        if (imageUrl != null) {
-            post.updateImage(imageUrl);   // Post 엔티티에 메서드 추가 필요 (아래 참고)
+                String url = s3ImageService.uploadImage(f);
+
+                // 첫 번째 업로드(i==0)만 is_main=true
+                boolean isMain = (i == 0);
+
+                postImageRepository.save(PostImage.of(saved, url, isMain));
+            }
         }
 
-        Post saved = postRepository.save(post);
+
         participantRepository.save(Participant.host(user, saved));
 
         return saved.getPostId();
@@ -117,10 +126,16 @@ public class PostService {
                         r -> r.getPostId(),
                         r -> r.getFavCount() == null ? 0 : r.getFavCount().intValue()
                 ));
+        Map<Long, String> mainImageMap = postImageRepository.findMainImagesByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        PostImageRepository.MainImageRow::getPostId,
+                        PostImageRepository.MainImageRow::getImageUrl
+                ));
 
         // 3) DTO로 변환 (없으면 0)
         return posts.getContent().stream()
-                .map(p -> PostListResponse.from(p, sumMap.getOrDefault(p.getPostId(), 0), favMap.getOrDefault(p.getPostId(),0)))
+                .map(p -> PostListResponse.from(p, sumMap.getOrDefault(p.getPostId(), 0), favMap.getOrDefault(p.getPostId(),0), mainImageMap.getOrDefault(p.getPostId(), null)))
                 .toList();
     }
 
@@ -128,8 +143,18 @@ public class PostService {
     public PostDetailResponse getPostDetail(Long postId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
+
+        String mainImageUrl = postImageRepository.findByPostId_PostIdAndIsMainTrue(postId)
+                .map(PostImage::getImageUrl)
+                .orElse(null);
+
+        List<String> imageUrls = postImageRepository.findAllByPostId_PostIdOrderByImageIdAsc(postId)
+                .stream()
+                .map(PostImage::getImageUrl)
+                .toList();
+
         int joinedSum = participantRepository.sumJoinedQuantity(postId);
-        return PostDetailResponse.from(post, joinedSum);
+        return PostDetailResponse.from(post, joinedSum, mainImageUrl, imageUrls);
 
     }
 
@@ -176,9 +201,16 @@ public class PostService {
                         r -> r.getFavCount() == null ? 0 : r.getFavCount().intValue()
                 ));
 
+        Map<Long, String> mainImageMap = postImageRepository.findMainImagesByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        PostImageRepository.MainImageRow::getPostId,
+                        PostImageRepository.MainImageRow::getImageUrl
+                ));
+
         // Page<PostListResponse> 만들기 (pageable/total 유지)
         List<PostListResponse> dtoList = posts.stream()
-                .map(p -> PostListResponse.from(p, joinedSumMap.getOrDefault(p.getPostId(), 0), joinedFavMap.getOrDefault(p.getPostId(),0)))
+                .map(p -> PostListResponse.from(p, joinedSumMap.getOrDefault(p.getPostId(), 0), joinedFavMap.getOrDefault(p.getPostId(),0), mainImageMap.getOrDefault(p.getPostId(), null)))
                 .toList();
 
         return new PageImpl<>(dtoList, pageable, postPage.getTotalElements());
@@ -226,14 +258,25 @@ public class PostService {
                         r -> r.getFavCount() == null ? 0 : r.getFavCount().intValue()
                 ));
 
+        Map<Long, String> mainImageMap = postImageRepository.findMainImagesByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        PostImageRepository.MainImageRow::getPostId,
+                        PostImageRepository.MainImageRow::getImageUrl
+                ));
+
+
+
         return posts.stream()
                 .map(p -> PostListResponse.from(
                         p,
                         sumMap.getOrDefault(p.getPostId(), 0),
-                        favMap.getOrDefault(p.getPostId(), 0)
+                        favMap.getOrDefault(p.getPostId(), 0),
+                        mainImageMap.getOrDefault(p.getPostId(), null)
                 ))
                 .toList();
 
     }
+
 
 }

@@ -8,6 +8,7 @@ import com.wink.gongongu.domain.user.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record PostDetailResponse(
         Long postId,
@@ -24,9 +25,10 @@ public record PostDetailResponse(
         String region,
         LocalDate createdAt,
         PostType type,
-        String image
+        String mainImageUrl,
+        List<String> imageUrls
 ) {
-    public static PostDetailResponse from(Post p, int joinedSum){
+    public static PostDetailResponse from(Post p, int joinedSum, String mainImageUrl, List<String> imageUrls){
         User u = p.getUserId();
         int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
         return new PostDetailResponse(
@@ -44,7 +46,8 @@ public record PostDetailResponse(
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
                 p.getType(),
-                p.getImage()
+                mainImageUrl,
+                imageUrls
 
         );
     }

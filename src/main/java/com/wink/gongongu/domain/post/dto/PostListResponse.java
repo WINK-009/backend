@@ -24,12 +24,12 @@ public record PostListResponse(
         LocalDate createdAt,
         PostType type,
         Integer favCount,
-        String image
+        String mainImageUrl
 ) {
     public static PostListResponse from(Post p) {
-        return from(p, 0,0);
+        return from(p, 0,0,null);
     }
-    public static PostListResponse from(Post p, int joinedSum, int favoriteCount) {
+    public static PostListResponse from(Post p, int joinedSum, int favoriteCount, String mainImageUrl) {
         int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
 
         return new PostListResponse(
@@ -50,7 +50,7 @@ public record PostListResponse(
                 p.getCreatedAt().toLocalDate(),
                 p.getType(),
                 favoriteCount,
-                p.getImage()
+                mainImageUrl
         );
     }
 }

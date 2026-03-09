@@ -33,10 +33,21 @@ public class PostController implements PostControllerSpec {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestPart(value="image", required = false)MultipartFile image, @RequestPart("request") UploadPostRequest request) throws IOException {
+    public ResponseEntity<UploadPostResponse> postRegister(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestPart(value="image", required = false)MultipartFile image,
+            @RequestPart(value="images", required = false) List<MultipartFile> images,
+            @RequestPart("request") UploadPostRequest request
+    ) throws IOException {
         //Long userId = extractUserId(authentication);
+
+        // 1장만 오는 경우도 리스트로 통일
+        if ((images == null || images.isEmpty()) && image != null && !image.isEmpty()) {
+            images = List.of(image);
+        }
+
         Long userId = principal.userId();
-        Long postId = postService.postRegister(userId, image, request);
+        Long postId = postService.postRegister(userId, images, request);
         return ResponseEntity.status(201).body(new UploadPostResponse(postId));
     }
 
