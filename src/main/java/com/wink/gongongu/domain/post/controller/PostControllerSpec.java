@@ -68,4 +68,16 @@ public interface PostControllerSpec {
                     본인것만 조회 가능"""
     )
     ResponseEntity<List<PostListResponse>> myPost(UserPrincipal principal);
+
+    @Operation(
+            summary = "업로드한 사진 삭제 API",
+            description = """
+                    대표사진을 삭제하면 다음 사진으로 대표사진 역할이 넘어감
+                    상세조회 기능으로 이미지 id확인 가능"""
+    )
+    ResponseEntity<Void> deletePostImage(
+            UserPrincipal principal,
+            Long postId,
+            Long imageId
+    );
 }
