@@ -17,9 +17,13 @@ import com.wink.gongongu.domain.chat.repository.ChatMessageRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomScheduleRepository;
 import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.repository.UserRepository;
 import com.wink.gongongu.domain.user.service.UserService;
 import com.wink.gongongu.global.exception.BusinessException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +44,7 @@ public class ChatRoomService {
     private final ChatRoomScheduleRepository chatRoomScheduleRepository;
     private final PostReader postReader;
     private final UserService userService;
+    private final UserRepository userRepository;
     // private final ParticipantRepository participantRepository; // inject when participant domain is ready
 
     @Transactional
@@ -101,11 +106,18 @@ public class ChatRoomService {
                 pageable
             );
 
+        Set<Long> senderIds = messages.stream()
+            .map(ChatMessage::getUserId)
+            .collect(Collectors.toSet());
+
+        Map<Long, String> nicknamesByUserId = userRepository.findAllById(senderIds).stream()
+            .collect(Collectors.toMap(User::getId, User::getNickname, (left, right) -> left));
+
         List<ChatMessageResponse> items = messages.stream()
             .map(message -> new ChatMessageResponse(
                 message.getChatMessageId(),
                 message.getUserId(),
-                null,
+                nicknamesByUserId.get(message.getUserId()),
                 message.getContent(),
                 message.getCreatedAt()
             ))
@@ -128,12 +140,12 @@ public class ChatRoomService {
         }
 
         if (chatRoom.getType() == ChatType.BUSINESS) {
-            postReader.findAuthorUserIdByPostId(chatRoom.getPostId())
-                .ifPresent(authorUserId -> {
-                    if (!authorUserId.equals(senderId)) {
-                        throw new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN);
-                    }
-                });
+            Long authorUserId = postReader.findAuthorUserIdByPostId(chatRoom.getPostId())
+                .orElseThrow(() -> new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN));
+
+            if (!authorUserId.equals(senderId)) {
+                throw new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN);
+            }
         }
 
         ChatMessage message = ChatMessage.builder()

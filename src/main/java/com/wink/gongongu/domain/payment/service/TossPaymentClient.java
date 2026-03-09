@@ -26,8 +26,7 @@ public class TossPaymentClient {
 
     public void confirm(String paymentKey, String orderId, int amount) {
         if (tossSecretKey == null || tossSecretKey.isBlank()) {
-            // local/mock mode
-            return;
+            throw new BusinessException(PaymentErrorCode.TOSS_SECRET_KEY_NOT_CONFIGURED);
         }
 
         String encodedAuth = Base64.getEncoder()
