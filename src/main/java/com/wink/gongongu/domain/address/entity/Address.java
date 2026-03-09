@@ -1,5 +1,7 @@
 package com.wink.gongongu.domain.address.entity;
 
+import com.wink.gongongu.domain.address.dto.UserAddressDetailResponse;
+import com.wink.gongongu.domain.address.dto.UserAddressUpdateRequest;
 import com.wink.gongongu.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,6 +56,17 @@ public class Address {
 
     public void changeDefault(boolean isDefault) {
         this.isDefault = isDefault;
+    }
+
+    public void updateAddress(UserAddressUpdateRequest req){
+        this.recipient=req.recipient();
+        this.phoneNumber= req.phoneNumber();
+        this.roadAddress=req.roadAddress();
+        this.detailAddress= req.detailAddress();
+        this.zipCode=req.zipCode();
+        this.alias= req.zipCode();
+        this.memo=req.memo();
+        this.isDefault=req.isDefault();
     }
 
 }

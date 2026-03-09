@@ -3,6 +3,8 @@ package com.wink.gongongu.domain.address.service;
 import com.wink.gongongu.domain.address.dto.UserAddressCreateRequest;
 import com.wink.gongongu.domain.address.dto.UserAddressCreateResponse;
 import com.wink.gongongu.domain.address.dto.UserAddressDetailResponse;
+import com.wink.gongongu.domain.address.dto.UserAddressUpdateRequest;
+import com.wink.gongongu.domain.address.dto.UserAddressUpdateResponse;
 import com.wink.gongongu.domain.address.dto.UserAddressesResponse;
 import com.wink.gongongu.domain.address.entity.Address;
 import com.wink.gongongu.domain.address.exception.AddressErrorCode;
@@ -52,6 +54,15 @@ public class AddressService {
              .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
 
          return AddressMapper.toDetailResponse(address);
+     }
+
+     @Transactional
+     public UserAddressUpdateResponse updateAddress(Long userId, Long addressId, UserAddressUpdateRequest request){
+         Address address = addressRepository.findByIdAndUser_Id(addressId, userId)
+             .orElseThrow(() -> new BusinessException(AddressErrorCode.ADDRESS_NOT_FOUND));
+         address.updateAddress(request);
+
+         return AddressMapper.toUpdateResponse(address);
      }
 
 
