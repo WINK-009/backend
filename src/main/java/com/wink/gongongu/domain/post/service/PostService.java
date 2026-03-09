@@ -4,7 +4,6 @@ import com.wink.gongongu.domain.favorite.repository.FavoriteRepository;
 import com.wink.gongongu.domain.favorite.service.FavoriteService;
 import com.wink.gongongu.domain.participant.entity.Participant;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
-import com.wink.gongongu.domain.participant.repository.PostJoinedSumRow;
 import com.wink.gongongu.domain.participant.service.ParticipantService;
 import com.wink.gongongu.domain.post.dto.PostDetailResponse;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
@@ -19,7 +18,6 @@ import com.wink.gongongu.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.wink.gongongu.global.service.S3ImageService;
@@ -185,6 +183,18 @@ public class PostService {
             favoriteRepository.deleteByPostId_PostId(postId);
             postRepository.delete(post);
         }
+    }
+
+    @Transactional
+    public List<PostListResponse> myPost(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new IllegalArgumentException("사용자 없음"));
+
+        return postRepository.findAllByUserId_IdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(PostListResponse::from)
+                .toList();
+
     }
 
 }

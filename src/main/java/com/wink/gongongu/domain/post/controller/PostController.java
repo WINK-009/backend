@@ -85,9 +85,14 @@ public class PostController {
         );
     }
 
-    @DeleteMapping("/posts/{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long postId){
         postService.deletePost(principal.userId(), postId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/posts/created")
+    public ResponseEntity<List<PostListResponse>> myPost(@AuthenticationPrincipal UserPrincipal principal){
+        return ResponseEntity.ok(postService.myPost(principal.userId()));
     }
 }
