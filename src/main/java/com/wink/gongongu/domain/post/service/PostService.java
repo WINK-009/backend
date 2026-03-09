@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -32,26 +33,38 @@ import java.util.stream.Collectors;
 public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final ParicipantRepository paricipantRepository;
+    private final ParicipantRepository participantRepository;
     private final ParticipantService participantService;
     private final FavoriteService favoriteService;
     private final FavoriteRepository favoriteRepository;
 
     @Transactional
-    public Long postRegister(Long userId, UploadPostRequest request){
+    public Long postRegister(Long userId, MultipartFile image, UploadPostRequest request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId));
+        String imageUrl = null;
+        /*
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3ImageService.uploadImage(image);
+        }*/
+
+        Post post;
         if (user.getUserType() == UserType.BUSINESS) {
             validateBusiness(request);
-            Post post = Post.create(user, request, PostType.BUSINESS);
-            return postRepository.save(post).getPostId();
+            post = Post.create(user, request, PostType.BUSINESS);
         } else {
             validateIndividual(request);
-            Post post = Post.create(user, request, PostType.INDIVIDUAL);
-            Post saved = postRepository.save(post);
-            paricipantRepository.save(Participant.host(user, saved));
-            return postRepository.save(post).getPostId();
+            post = Post.create(user, request, PostType.INDIVIDUAL);
         }
+
+        if (imageUrl != null) {
+            post.updateImage(imageUrl);   // Post 엔티티에 메서드 추가 필요 (아래 참고)
+        }
+
+        Post saved = postRepository.save(post);
+        participantRepository.save(Participant.host(user, saved));
+
+        return saved.getPostId();
 
 
     }
@@ -92,10 +105,10 @@ public class PostService {
                 .toList();
 
         // 2) postId -> joinedSum 맵 만들기
-        Map<Long, Integer> sumMap = paricipantRepository.sumJoinedQuantityByPostIds(postIds)
+        Map<Long, Integer> sumMap = participantRepository.sumJoinedQuantityByPostIds(postIds)
                 .stream()
                 .collect(Collectors.toMap(
-                        ParicipantRepository.PostJoinedSumRow::getPostId,
+                        r -> r.getPostId(),
                         r -> r.getJoinedQuantitySum() == null ? 0 : r.getJoinedQuantitySum()
                 ));
 
@@ -109,7 +122,7 @@ public class PostService {
     public PostDetailResponse getPostDetail(Long postId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
-        int joinedSum = paricipantRepository.sumJoinedQuantity(postId);
+        int joinedSum = participantRepository.sumJoinedQuantity(postId);
         return PostDetailResponse.from(post, joinedSum);
 
     }
@@ -142,7 +155,7 @@ public class PostService {
         List<Long> postIds = posts.stream().map(Post::getPostId).toList();
 
         // joinedSum map 만들기
-        Map<Long, Integer> joinedSumMap = paricipantRepository
+        Map<Long, Integer> joinedSumMap = participantRepository
                 .sumJoinedQuantityByPostIds(postIds)
                 .stream()
                 .collect(Collectors.toMap(
@@ -166,7 +179,7 @@ public class PostService {
 
         if (post.getUserId() == user){
 
-            paricipantRepository.deleteByPostId_PostId(postId);
+            participantRepository.deleteByPostId_PostId(postId);
             favoriteRepository.deleteByPostId_PostId(postId);
             postRepository.delete(post);
         }

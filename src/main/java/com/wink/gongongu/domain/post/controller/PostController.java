@@ -13,12 +13,14 @@ import com.wink.gongongu.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,11 +31,11 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestBody UploadPostRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestPart(value="image", required = false)MultipartFile image, @RequestPart("request") UploadPostRequest request) {
         //Long userId = extractUserId(authentication);
         Long userId = principal.userId();
-        Long postId = postService.postRegister(userId, request);
+        Long postId = postService.postRegister(userId, image, request);
         return ResponseEntity.status(201).body(new UploadPostResponse(postId));
     }
 
