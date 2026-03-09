@@ -1,8 +1,7 @@
 package com.wink.gongongu.domain.payment.mapper;
 
-import com.wink.gongongu.domain.payment.dto.PaymentCreateResponse;
-import com.wink.gongongu.domain.payment.dto.PaymentDetailResponse;
-import com.wink.gongongu.domain.payment.dto.PaymentListItemResponse;
+import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmResponse;
+import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyResponse;
 import com.wink.gongongu.domain.payment.entity.Payment;
 
 public final class PaymentMapper {
@@ -10,40 +9,23 @@ public final class PaymentMapper {
     private PaymentMapper() {
     }
 
-    public static PaymentCreateResponse toCreateResponse(Payment payment) {
-        return new PaymentCreateResponse(
+    public static PayMoneyChargeReadyResponse toReadyResponse(Payment payment) {
+        return new PayMoneyChargeReadyResponse(
             payment.getPaymentId(),
-            payment.getUserId(),
-            payment.getPostId(),
+            payment.getOrderId(),
             payment.getAmount(),
-            payment.getMethod(),
-            payment.getStatus(),
-            payment.getCreatedAt()
+            payment.getStatus().name()
         );
     }
 
-    public static PaymentDetailResponse toDetailResponse(Payment payment) {
-        return new PaymentDetailResponse(
+    public static PayMoneyChargeConfirmResponse toConfirmResponse(Payment payment, int currentPayMoney) {
+        return new PayMoneyChargeConfirmResponse(
             payment.getPaymentId(),
-            payment.getUserId(),
-            payment.getPostId(),
+            payment.getOrderId(),
+            payment.getPaymentKey(),
             payment.getAmount(),
-            payment.getMethod(),
-            payment.getStatus(),
-            payment.getProviderTxId(),
-            payment.getCreatedAt(),
-            payment.getUpdatedAt()
-        );
-    }
-
-    public static PaymentListItemResponse toListItemResponse(Payment payment) {
-        return new PaymentListItemResponse(
-            payment.getPaymentId(),
-            payment.getPostId(),
-            payment.getAmount(),
-            payment.getMethod(),
-            payment.getStatus(),
-            payment.getCreatedAt()
+            payment.getStatus().name(),
+            currentPayMoney
         );
     }
 }

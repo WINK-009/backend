@@ -27,43 +27,35 @@ public class Payment extends BaseTimeEntity {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
-    private Long postId;
+    @Column(nullable = false, unique = true)
+    private String orderId;
+
+    @Column
+    private String paymentKey;
 
     @Column(nullable = false)
     private Integer amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentMethod method;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private PaymentStatus status;
 
-    @Column
-    private String providerTxId;
-
     @Builder
-    public Payment(Long userId, Long postId, Integer amount, PaymentMethod method, PaymentStatus status, String providerTxId) {
+    public Payment(Long userId, String orderId, String paymentKey, Integer amount, PaymentStatus status) {
         this.userId = userId;
-        this.postId = postId;
+        this.orderId = orderId;
+        this.paymentKey = paymentKey;
         this.amount = amount;
-        this.method = method;
         this.status = status;
-        this.providerTxId = providerTxId;
     }
 
-    public void markSuccess(String providerTxId) {
+    public void confirm(String paymentKey) {
         this.status = PaymentStatus.SUCCESS;
-        this.providerTxId = providerTxId;
+        this.paymentKey = paymentKey;
     }
 
-    public void markFailed() {
+    public void fail(String paymentKey) {
         this.status = PaymentStatus.FAILED;
-    }
-
-    public void markCanceled() {
-        this.status = PaymentStatus.CANCELED;
+        this.paymentKey = paymentKey;
     }
 }

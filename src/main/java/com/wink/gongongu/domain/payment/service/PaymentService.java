@@ -1,22 +1,19 @@
 package com.wink.gongongu.domain.payment.service;
 
-import com.wink.gongongu.domain.payment.dto.PaymentCreateRequest;
-import com.wink.gongongu.domain.payment.dto.PaymentCreateResponse;
-import com.wink.gongongu.domain.payment.dto.PaymentDetailResponse;
-import com.wink.gongongu.domain.payment.dto.PaymentListItemResponse;
-import com.wink.gongongu.domain.payment.dto.PaymentListResponse;
-import com.wink.gongongu.domain.payment.dto.PaymentSuccessCallbackRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmResponse;
+import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyResponse;
 import com.wink.gongongu.domain.payment.entity.Payment;
 import com.wink.gongongu.domain.payment.entity.PaymentStatus;
 import com.wink.gongongu.domain.payment.exception.PaymentErrorCode;
 import com.wink.gongongu.domain.payment.mapper.PaymentMapper;
 import com.wink.gongongu.domain.payment.repository.PaymentRepository;
+import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.service.UserService;
 import com.wink.gongongu.global.exception.BusinessException;
-import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,97 +22,60 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PaymentService {
 
-    private static final int DEFAULT_PAGE_SIZE = 20;
-    private static final int MAX_PAGE_SIZE = 100;
-
     private final PaymentRepository paymentRepository;
+    private final UserService userService;
+    private final TossPaymentClient tossPaymentClient;
 
     @Transactional
-    public PaymentCreateResponse createPayment(Long userId, PaymentCreateRequest request) {
-        validateCreateRequest(request);
+    public PayMoneyChargeReadyResponse readyCharge(Long userId, PayMoneyChargeReadyRequest request) {
+        if (request == null || request.amount() == null || request.amount() <= 0) {
+            throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
 
         Payment payment = Payment.builder()
             .userId(userId)
-            .postId(request.postId())
+            .orderId(generateOrderId())
             .amount(request.amount())
-            .method(request.method())
             .status(PaymentStatus.READY)
             .build();
 
         Payment saved = paymentRepository.save(payment);
-        return PaymentMapper.toCreateResponse(saved);
-    }
-
-    public PaymentDetailResponse getPaymentDetail(Long paymentId, Long userId) {
-        Payment payment = paymentRepository.findByPaymentIdAndUserId(paymentId, userId)
-            .orElseThrow(() -> new BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND));
-
-        return PaymentMapper.toDetailResponse(payment);
-    }
-
-    public PaymentListResponse getMyPayments(Long userId, PaymentStatus status, int page, int size) {
-        int safePage = Math.max(page, 0);
-        int safeSize = size <= 0 ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
-        Pageable pageable = PageRequest.of(safePage, safeSize);
-
-        Slice<Payment> payments = status == null
-            ? paymentRepository.findByUserIdOrderByPaymentIdDesc(userId, pageable)
-            : paymentRepository.findByUserIdAndStatusOrderByPaymentIdDesc(userId, status, pageable);
-
-        List<PaymentListItemResponse> items = payments.stream()
-            .map(PaymentMapper::toListItemResponse)
-            .toList();
-
-        return new PaymentListResponse(items, payments.hasNext(), safePage, safeSize);
+        return PaymentMapper.toReadyResponse(saved);
     }
 
     @Transactional
-    public PaymentDetailResponse cancelPayment(Long paymentId, Long userId) {
-        Payment payment = paymentRepository.findByPaymentIdAndUserId(paymentId, userId)
+    public PayMoneyChargeConfirmResponse confirmCharge(Long userId, PayMoneyChargeConfirmRequest request) {
+        validateConfirmRequest(request);
+
+        Payment payment = paymentRepository.findByOrderIdAndUserId(request.orderId(), userId)
             .orElseThrow(() -> new BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND));
 
         if (payment.getStatus() != PaymentStatus.READY) {
             throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
         }
 
-        payment.markCanceled();
-        return PaymentMapper.toDetailResponse(payment);
-    }
-
-    @Transactional
-    public PaymentDetailResponse markPaymentSuccess(Long paymentId, PaymentSuccessCallbackRequest request) {
-        Payment payment = paymentRepository.findById(paymentId)
-            .orElseThrow(() -> new BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND));
-
-        if (payment.getStatus() != PaymentStatus.READY) {
-            throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
+        if (!payment.getAmount().equals(request.amount())) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
-        if (request == null || request.providerTxId() == null || request.providerTxId().isBlank()) {
-            throw new BusinessException(PaymentErrorCode.INVALID_PROVIDER_TX_ID);
-        }
+        tossPaymentClient.confirm(request.paymentKey(), request.orderId(), request.amount());
 
-        payment.markSuccess(request.providerTxId().trim());
-        return PaymentMapper.toDetailResponse(payment);
+        payment.confirm(request.paymentKey());
+        User user = userService.findById(userId);
+        user.chargePayMoney(request.amount());
+
+        return PaymentMapper.toConfirmResponse(payment, user.getPayMoney());
     }
 
-    @Transactional
-    public PaymentDetailResponse markPaymentFailed(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
-            .orElseThrow(() -> new BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND));
-
-        if (payment.getStatus() != PaymentStatus.READY) {
-            throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
-        }
-
-        payment.markFailed();
-        return PaymentMapper.toDetailResponse(payment);
+    private String generateOrderId() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
-    private void validateCreateRequest(PaymentCreateRequest request) {
-        if (request == null || request.postId() == null || request.amount() == null
-            || request.amount() <= 0 || request.method() == null) {
-            throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_AMOUNT);
+    private void validateConfirmRequest(PayMoneyChargeConfirmRequest request) {
+        if (request == null || request.paymentKey() == null || request.paymentKey().isBlank()
+            || request.orderId() == null || request.orderId().isBlank()
+            || request.amount() == null || request.amount() <= 0) {
+            throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_CONFIRM_REQUEST);
         }
     }
 }

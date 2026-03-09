@@ -43,8 +43,7 @@ public class SecurityConfig {
                     "/webjars/**",
                     "/swagger-resources/**",
                     "/favicon.ico",
-                    "/ws-chat/**",
-                    "/payments/callbacks/**"
+                    "/ws-chat/**"
                 ).permitAll()
                 .requestMatchers("/users/signup").hasRole("TMP")
                 .anyRequest().hasAnyRole("INDIVIDUAL", "BUSINESS")
@@ -75,3 +74,4 @@ public class SecurityConfig {
         return source;
     }
 }
+
