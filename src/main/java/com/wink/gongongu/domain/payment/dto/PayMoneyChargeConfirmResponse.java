@@ -3,22 +3,22 @@ package com.wink.gongongu.domain.payment.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record PayMoneyChargeConfirmResponse(
-    @Schema(description = "\uacb0\uc81c ID", example = "1")
+    @Schema(description = "결제 ID", example = "1")
     Long paymentId,
 
-    @Schema(description = "\uc8fc\ubb38 ID", example = "4e8e7e2f43c243f19bfc7f4adf5bb0ef")
+    @Schema(description = "주문 ID", example = "4e8e7e2f43c243f19bfc7f4adf5bb0ef")
     String orderId,
 
-    @Schema(description = "\ud1a0\uc2a4 \uacb0\uc81c \ud0a4", example = "test_payment_key_xxx")
+    @Schema(description = "토스 결제 키", example = "test_payment_key_xxx")
     String paymentKey,
 
-    @Schema(description = "\ucda9\uc804 \uae08\uc561", example = "5000")
+    @Schema(description = "충전 금액", example = "5000")
     Integer amount,
 
-    @Schema(description = "\uacb0\uc81c \uc0c1\ud0dc", example = "SUCCESS")
+    @Schema(description = "결제 상태", example = "SUCCESS")
     String status,
 
-    @Schema(description = "\ucda9\uc804 \ud6c4 \ud604\uc7ac \ud398\uc774\uba38\ub2c8 \uc794\uc561", example = "12000")
+    @Schema(description = "충전 후 현재 페이머니 잔액", example = "12000")
     Integer currentPayMoney
 ) {
 }
