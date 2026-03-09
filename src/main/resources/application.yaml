@@ -28,14 +28,17 @@ spring:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id # 移댁뭅??id 媛믪씠 name????
-`r`n  servlet:`r`n    multipart:`r`n      max-file-size: 10MB
+            user-name-attribute: id
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
 
 jwt:
   secret: "${JWT_SECRET}"
-  access-exp-seconds: 2592000 # 30??
-  refresh-exp-seconds: 2592000 # 30??
-  tmp-exp-seconds: 86400 # 1??
+  access-exp-seconds: 2592000
+  refresh-exp-seconds: 2592000
+  tmp-exp-seconds: 86400
 
 logging:
   level:
@@ -54,4 +57,3 @@ cloud:
 toss:
   secret-key: ${TOSS_SECRET_KEY:}
   confirm-url: https://api.tosspayments.com/v1/payments/confirm
-

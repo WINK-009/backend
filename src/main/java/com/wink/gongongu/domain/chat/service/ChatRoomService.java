@@ -16,9 +16,9 @@ import com.wink.gongongu.domain.chat.exception.ChatErrorCode;
 import com.wink.gongongu.domain.chat.repository.ChatMessageRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomScheduleRepository;
-import com.wink.gongongu.domain.user.entity.User;
-import com.wink.gongongu.domain.user.repository.UserRepository;
-import com.wink.gongongu.domain.user.service.UserService;
+import com.wink.gongongu.domain.participant.entity.Participant;
+import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
+import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.global.exception.BusinessException;
 import java.util.List;
 import java.util.Map;
@@ -43,18 +43,21 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomScheduleRepository chatRoomScheduleRepository;
     private final PostReader postReader;
-    private final UserService userService;
-    private final UserRepository userRepository;
-    // private final ParticipantRepository participantRepository; // inject when participant domain is ready
+    private final ParicipantRepository paricipantRepository;
+    private final PostRepository postRepository;
 
     @Transactional
     public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest request) {
-        if (chatRoomRepository.existsByPostId(request.postId())) {
-            throw new BusinessException(ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS);
+        if (request == null || request.postId() == null || request.type() == null) {
+            throw new BusinessException(ChatErrorCode.INVALID_CHAT_TYPE);
         }
 
-        if (request.type() == null) {
-            throw new BusinessException(ChatErrorCode.INVALID_CHAT_TYPE);
+        if (!postRepository.existsById(request.postId())) {
+            throw new BusinessException(ChatErrorCode.POST_NOT_FOUND);
+        }
+
+        if (chatRoomRepository.existsByPostId(request.postId())) {
+            throw new BusinessException(ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS);
         }
 
         ChatRoom chatRoom = ChatRoom.builder()
@@ -78,7 +81,6 @@ public class ChatRoomService {
 
         String postTitle = postReader.findTitleByPostId(chatRoom.getPostId()).orElse(null);
 
-        // TODO: replace with participantRepository.countByChatRoomId(chatRoomId)
         Integer participantCount = null;
 
         return new ChatRoomDetailResponse(
@@ -106,21 +108,27 @@ public class ChatRoomService {
                 pageable
             );
 
-        Set<Long> senderIds = messages.stream()
-            .map(ChatMessage::getUserId)
+        Set<Long> participantIds = messages.stream()
+            .map(ChatMessage::getParticipantId)
             .collect(Collectors.toSet());
 
-        Map<Long, String> nicknamesByUserId = userRepository.findAllById(senderIds).stream()
-            .collect(Collectors.toMap(User::getId, User::getNickname, (left, right) -> left));
+        Map<Long, Participant> participantsById = paricipantRepository.findAllById(participantIds).stream()
+            .collect(Collectors.toMap(Participant::getParticipantsId, p -> p, (left, right) -> left));
 
         List<ChatMessageResponse> items = messages.stream()
-            .map(message -> new ChatMessageResponse(
-                message.getChatMessageId(),
-                message.getUserId(),
-                nicknamesByUserId.get(message.getUserId()),
-                message.getContent(),
-                message.getCreatedAt()
-            ))
+            .map(message -> {
+                Participant participant = participantsById.get(message.getParticipantId());
+                Long senderUserId = participant != null ? participant.getUserId().getId() : null;
+                String senderNickname = participant != null ? participant.getUserId().getNickname() : null;
+
+                return new ChatMessageResponse(
+                    message.getChatMessageId(),
+                    senderUserId,
+                    senderNickname,
+                    message.getContent(),
+                    message.getCreatedAt()
+                );
+            })
             .toList();
 
         Long nextCursor = messages.hasNext() && !items.isEmpty()
@@ -139,28 +147,26 @@ public class ChatRoomService {
             throw new BusinessException(ChatErrorCode.INVALID_CHAT_MESSAGE);
         }
 
-        if (chatRoom.getType() == ChatType.BUSINESS) {
-            Long authorUserId = postReader.findAuthorUserIdByPostId(chatRoom.getPostId())
-                .orElseThrow(() -> new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN));
+        Participant participant = paricipantRepository
+            .findByUserId_IdAndPostId_PostIdAndDeletedFalse(senderId, chatRoom.getPostId())
+            .orElseThrow(() -> new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN));
 
-            if (!authorUserId.equals(senderId)) {
-                throw new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN);
-            }
+        if (chatRoom.getType() == ChatType.BUSINESS && !participant.isIshost()) {
+            throw new BusinessException(ChatErrorCode.CHAT_MESSAGE_FORBIDDEN);
         }
 
         ChatMessage message = ChatMessage.builder()
             .chatRoomId(chatRoomId)
-            .userId(senderId)
+            .participantId(participant.getParticipantsId())
             .content(request.content().trim())
             .build();
 
         ChatMessage saved = chatMessageRepository.save(message);
-        User sender = userService.findById(senderId);
 
         return new ChatMessageResponse(
             saved.getChatMessageId(),
-            saved.getUserId(),
-            sender.getNickname(),
+            participant.getUserId().getId(),
+            participant.getUserId().getNickname(),
             saved.getContent(),
             saved.getCreatedAt()
         );

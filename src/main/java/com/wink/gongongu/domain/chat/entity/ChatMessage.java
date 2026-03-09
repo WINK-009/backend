@@ -32,8 +32,8 @@ public class ChatMessage {
     @Column(name = "chat_room_id", nullable = false)
     private Long chatRoomId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "participant_id", nullable = false)
+    private Long participantId;
 
     @Column(name = "content", nullable = false, length = 1000)
     private String content;
