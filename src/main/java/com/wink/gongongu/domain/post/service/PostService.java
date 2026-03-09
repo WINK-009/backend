@@ -22,7 +22,9 @@ import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.wink.gongongu.global.service.S3ImageService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,16 +39,16 @@ public class PostService {
     private final ParticipantService participantService;
     private final FavoriteService favoriteService;
     private final FavoriteRepository favoriteRepository;
+    private final S3ImageService s3ImageService;
 
     @Transactional
-    public Long postRegister(Long userId, MultipartFile image, UploadPostRequest request){
+    public Long postRegister(Long userId, MultipartFile image, UploadPostRequest request) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId));
         String imageUrl = null;
-        /*
         if (image != null && !image.isEmpty()) {
             imageUrl = s3ImageService.uploadImage(image);
-        }*/
+        }
 
         Post post;
         if (user.getUserType() == UserType.BUSINESS) {

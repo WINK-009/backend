@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -32,7 +33,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestPart(value="image", required = false)MultipartFile image, @RequestPart("request") UploadPostRequest request) {
+    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestPart(value="image", required = false)MultipartFile image, @RequestPart("request") UploadPostRequest request) throws IOException {
         //Long userId = extractUserId(authentication);
         Long userId = principal.userId();
         Long postId = postService.postRegister(userId, image, request);
