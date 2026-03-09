@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.payment.service;
 
+import com.wink.gongongu.domain.payment.dto.PayMoneyBalanceResponse;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmRequest;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmResponse;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyRequest;
@@ -50,21 +51,34 @@ public class PaymentService {
         Payment payment = paymentRepository.findByOrderIdAndUserId(request.orderId(), userId)
             .orElseThrow(() -> new BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND));
 
-        if (payment.getStatus() != PaymentStatus.READY) {
+        if (!payment.getAmount().equals(request.amount())) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_AMOUNT_MISMATCH);
+        }
+
+        User user = userService.findById(userId);
+
+        if (payment.getStatus() == PaymentStatus.SUCCESS) {
+            if (payment.getPaymentKey() != null && payment.getPaymentKey().equals(request.paymentKey())) {
+                return PaymentMapper.toConfirmResponse(payment, user.getPayMoney());
+            }
             throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
         }
 
-        if (!payment.getAmount().equals(request.amount())) {
-            throw new BusinessException(PaymentErrorCode.PAYMENT_AMOUNT_MISMATCH);
+        if (payment.getStatus() != PaymentStatus.READY) {
+            throw new BusinessException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
         }
 
         tossPaymentClient.confirm(request.paymentKey(), request.orderId(), request.amount());
 
         payment.confirm(request.paymentKey());
-        User user = userService.findById(userId);
         user.chargePayMoney(request.amount());
 
         return PaymentMapper.toConfirmResponse(payment, user.getPayMoney());
+    }
+
+    public PayMoneyBalanceResponse getBalance(Long userId) {
+        User user = userService.findById(userId);
+        return new PayMoneyBalanceResponse(user.getPayMoney());
     }
 
     private String generateOrderId() {
