@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class FavoriteController {
+public class FavoriteController implements FavoriteControllerSpec{
     private final FavoriteService favoriteService;
 
     @PostMapping("/posts/{postId}/fav")

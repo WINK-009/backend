@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class ParticipantController {
+public class ParticipantController implements ParticipantControllerSpec {
     private final ParticipantService participantService;
 
     @PostMapping("/posts/{postId}/join")
