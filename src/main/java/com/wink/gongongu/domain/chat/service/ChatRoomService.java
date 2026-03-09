@@ -15,6 +15,8 @@ import com.wink.gongongu.domain.chat.exception.ChatErrorCode;
 import com.wink.gongongu.domain.chat.repository.ChatMessageRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomRepository;
 import com.wink.gongongu.domain.chat.repository.ChatRoomScheduleRepository;
+import com.wink.gongongu.domain.user.entity.User;
+import com.wink.gongongu.domain.user.service.UserService;
 import com.wink.gongongu.global.exception.BusinessException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomScheduleRepository chatRoomScheduleRepository;
     private final PostReader postReader;
+    private final UserService userService;
     // private final ParticipantRepository participantRepository; // inject when participant domain is ready
 
     @Transactional
@@ -115,28 +118,28 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public ChatMessageResponse sendChatMessage(Long chatRoomId, ChatMessageSendRequest request) {
+    public ChatMessageResponse sendChatMessage(Long chatRoomId, Long senderId, ChatMessageSendRequest request) {
         if (!chatRoomRepository.existsById(chatRoomId)) {
             throw new BusinessException(ChatErrorCode.CHAT_ROOM_NOT_FOUND);
         }
 
-        if (request == null || request.senderId() == null || request.content() == null
-            || request.content().isBlank()) {
+        if (request == null || senderId == null || request.content() == null || request.content().isBlank()) {
             throw new BusinessException(ChatErrorCode.INVALID_CHAT_MESSAGE);
         }
 
         ChatMessage message = ChatMessage.builder()
             .chatRoomId(chatRoomId)
-            .userId(request.senderId())
+            .userId(senderId)
             .content(request.content().trim())
             .build();
 
         ChatMessage saved = chatMessageRepository.save(message);
+        User sender = userService.findById(senderId);
 
         return new ChatMessageResponse(
             saved.getChatMessageId(),
             saved.getUserId(),
-            request.senderNickname(),
+            sender.getNickname(),
             saved.getContent(),
             saved.getCreatedAt()
         );
