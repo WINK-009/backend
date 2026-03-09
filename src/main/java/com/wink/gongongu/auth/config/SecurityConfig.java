@@ -33,34 +33,29 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .formLogin(fl -> fl.disable())
             .httpBasic(hb -> hb.disable())
-
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/","/oauth2/**","/login/**","/auth/**","/error").permitAll()
-
+                .requestMatchers("/", "/oauth2/**", "/login/**", "/auth/**", "/error").permitAll()
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**", "/favicon.ico")
-                .permitAll()
-
+                    "/v3/api-docs/**",
+                    "/webjars/**",
+                    "/swagger-resources/**",
+                    "/favicon.ico",
+                    "/ws-chat/**"
+                ).permitAll()
                 .requestMatchers("/users/signup").hasRole("TMP")
-
-                .anyRequest().hasAnyRole("INDIVIDUAL","BUSINESS")
-
+                .anyRequest().hasAnyRole("INDIVIDUAL", "BUSINESS")
             )
-
-            .exceptionHandling(
-                ex -> ex.authenticationEntryPoint(exAuthenticationEntryPoint)
-                    .accessDeniedHandler(customAccessDinedHandler)
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(exAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDinedHandler)
             )
-
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
             )
-
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -79,3 +74,4 @@ public class SecurityConfig {
         return source;
     }
 }
+

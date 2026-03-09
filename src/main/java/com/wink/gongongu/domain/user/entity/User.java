@@ -41,11 +41,11 @@ public class User {
     private String region;
 
     @Builder
-    public User(String nickname,String kakaoId, UserType userType, String region){
+    public User(String nickname, String kakaoId, UserType userType, String region) {
         this.nickname = nickname;
-        this.kakaoId=kakaoId;
-        this.userType=userType;
-        this.region=region;
+        this.kakaoId = kakaoId;
+        this.userType = userType;
+        this.region = region;
     }
 
     public void signUp(SignUpRequest request) {
@@ -57,6 +57,14 @@ public class User {
 
     public void updateProfile(String nickname, String profileImageUrl) {
         this.nickname = nickname;
-        this.profileImageUrl=profileImageUrl;
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void chargePayMoney(int amount) {
+        this.payMoney += amount;
+    }
+
+    public void usePayMoney(int amount) {
+        this.payMoney -= amount;
     }
 }
