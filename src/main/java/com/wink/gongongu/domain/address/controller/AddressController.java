@@ -50,6 +50,7 @@ public class AddressController implements AddressControllerSpec{
         return addressService.getAddressDetail(principal.userId(), addressId);
     }
 
+    @Override
     @PutMapping("/{addressId}")
     public UserAddressUpdateResponse updateAddress(@AuthenticationPrincipal UserPrincipal principal,
         @PathVariable("addressId") Long addressId,
@@ -57,6 +58,7 @@ public class AddressController implements AddressControllerSpec{
         return addressService.updateAddress(principal.userId(), addressId, request);
     }
 
+    @Override
     @DeleteMapping("/{addressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAddress(@AuthenticationPrincipal UserPrincipal principal,
