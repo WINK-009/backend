@@ -63,4 +63,8 @@ public class User {
     public void chargePayMoney(int amount) {
         this.payMoney += amount;
     }
+
+    public void usePayMoney(int amount) {
+        this.payMoney -= amount;
+    }
 }

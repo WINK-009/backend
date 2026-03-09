@@ -5,6 +5,8 @@ import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmRequest;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmResponse;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyRequest;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyResponse;
+import com.wink.gongongu.domain.payment.dto.PayMoneyUseRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyUseResponse;
 import com.wink.gongongu.domain.payment.entity.Payment;
 import com.wink.gongongu.domain.payment.entity.PaymentStatus;
 import com.wink.gongongu.domain.payment.exception.PaymentErrorCode;
@@ -74,6 +76,21 @@ public class PaymentService {
         user.chargePayMoney(request.amount());
 
         return PaymentMapper.toConfirmResponse(payment, user.getPayMoney());
+    }
+
+    @Transactional
+    public PayMoneyUseResponse usePayMoney(Long userId, PayMoneyUseRequest request) {
+        if (request == null || request.postId() == null || request.amount() == null || request.amount() <= 0) {
+            throw new BusinessException(PaymentErrorCode.INVALID_PAYMONEY_USE_REQUEST);
+        }
+
+        User user = userService.findById(userId);
+        if (user.getPayMoney() < request.amount()) {
+            throw new BusinessException(PaymentErrorCode.INSUFFICIENT_PAY_MONEY);
+        }
+
+        user.usePayMoney(request.amount());
+        return new PayMoneyUseResponse(request.postId(), request.amount(), user.getPayMoney());
     }
 
     public PayMoneyBalanceResponse getBalance(Long userId) {

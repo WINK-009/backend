@@ -6,6 +6,8 @@ import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmRequest;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmResponse;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyRequest;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyResponse;
+import com.wink.gongongu.domain.payment.dto.PayMoneyUseRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyUseResponse;
 import com.wink.gongongu.domain.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,15 @@ public class PaymentController {
         @RequestBody PayMoneyChargeConfirmRequest request
     ) {
         return paymentService.confirmCharge(principal.userId(), request);
+    }
+
+    @PostMapping("/use")
+    @ResponseStatus(HttpStatus.OK)
+    public PayMoneyUseResponse usePayMoney(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @RequestBody PayMoneyUseRequest request
+    ) {
+        return paymentService.usePayMoney(principal.userId(), request);
     }
 
     @GetMapping("/balance")

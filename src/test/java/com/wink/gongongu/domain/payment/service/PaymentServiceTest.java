@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmRequest;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeConfirmResponse;
 import com.wink.gongongu.domain.payment.dto.PayMoneyChargeReadyRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyUseRequest;
+import com.wink.gongongu.domain.payment.dto.PayMoneyUseResponse;
 import com.wink.gongongu.domain.payment.entity.Payment;
 import com.wink.gongongu.domain.payment.entity.PaymentStatus;
 import com.wink.gongongu.domain.payment.exception.PaymentErrorCode;
@@ -89,5 +91,46 @@ class PaymentServiceTest {
             .isEqualTo(PaymentErrorCode.INVALID_PAYMENT_AMOUNT);
 
         verify(paymentRepository, times(0)).save(any());
+    }
+
+    @Test
+    void usePayMoney_throws_whenBalanceIsInsufficient() {
+        Long userId = 1L;
+        User user = User.builder()
+            .nickname("tester")
+            .kakaoId("kakao-1")
+            .userType(UserType.INDIVIDUAL)
+            .region("seoul")
+            .build();
+
+        when(userService.findById(userId)).thenReturn(user);
+
+        PayMoneyUseRequest request = new PayMoneyUseRequest(100L, 1000);
+
+        assertThatThrownBy(() -> paymentService.usePayMoney(userId, request))
+            .isInstanceOf(BusinessException.class)
+            .extracting(ex -> ((BusinessException) ex).getErrorCode())
+            .isEqualTo(PaymentErrorCode.INSUFFICIENT_PAY_MONEY);
+    }
+
+    @Test
+    void usePayMoney_success_whenBalanceIsEnough() {
+        Long userId = 1L;
+        User user = User.builder()
+            .nickname("tester")
+            .kakaoId("kakao-1")
+            .userType(UserType.INDIVIDUAL)
+            .region("seoul")
+            .build();
+        user.chargePayMoney(5000);
+
+        when(userService.findById(userId)).thenReturn(user);
+
+        PayMoneyUseRequest request = new PayMoneyUseRequest(100L, 3000);
+        PayMoneyUseResponse response = paymentService.usePayMoney(userId, request);
+
+        assertThat(response.postId()).isEqualTo(100L);
+        assertThat(response.usedAmount()).isEqualTo(3000);
+        assertThat(response.currentPayMoney()).isEqualTo(2000);
     }
 }
