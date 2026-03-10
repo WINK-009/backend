@@ -64,7 +64,7 @@ public class Address {
         this.roadAddress=req.roadAddress();
         this.detailAddress= req.detailAddress();
         this.zipCode=req.zipCode();
-        this.alias= req.zipCode();
+        this.alias= req.alias();
         this.memo=req.memo();
         this.isDefault=req.isDefault();
         this.longitude=req.longitude();
