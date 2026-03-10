@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.dto;
 
+import com.wink.gongongu.domain.favorite.repository.FavoriteRepository;
 import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.entity.PostType;
@@ -21,12 +22,14 @@ public record PostListResponse(
         PostStatus status,
         String region,
         LocalDate createdAt,
-        PostType type
+        PostType type,
+        Integer favCount,
+        String mainImageUrl
 ) {
     public static PostListResponse from(Post p) {
-        return from(p, 0);
+        return from(p, 0,0,null);
     }
-    public static PostListResponse from(Post p, int joinedSum) {
+    public static PostListResponse from(Post p, int joinedSum, int favoriteCount, String mainImageUrl) {
         int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
 
         return new PostListResponse(
@@ -45,7 +48,9 @@ public record PostListResponse(
                 p.getStatus(),
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
-                p.getType()
+                p.getType(),
+                favoriteCount,
+                mainImageUrl
         );
     }
 }

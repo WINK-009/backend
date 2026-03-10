@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,7 +64,6 @@ public class Post extends BaseTimeEntity {
         p.title = req.title();
         p.region = req.region();
         p.description = req.description();
-        p.image = req.image();
         p.price = req.price();
         p.originalprice = req.originalprice();
         p.maxQuantity = req.maxQuantity();
@@ -74,6 +74,9 @@ public class Post extends BaseTimeEntity {
         p.status = PostStatus.OPEN;
         p.likeCount = 0;
         return p;
+    }
+    public void updateImage(String imageUrl) {
+        this.image = imageUrl;
     }
 
 }

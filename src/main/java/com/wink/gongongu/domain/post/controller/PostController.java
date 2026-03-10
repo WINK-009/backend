@@ -13,27 +13,36 @@ import com.wink.gongongu.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor
-public class PostController {
+public class PostController implements PostControllerSpec {
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<UploadPostResponse> postRegister(@AuthenticationPrincipal UserPrincipal principal, @RequestBody UploadPostRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UploadPostResponse> postRegister(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestPart(value="images", required = false) List<MultipartFile> images,
+            @RequestPart("request") UploadPostRequest request
+    ) throws IOException {
         //Long userId = extractUserId(authentication);
+
+
         Long userId = principal.userId();
-        Long postId = postService.postRegister(userId, request);
+        Long postId = postService.postRegister(userId, images, request);
         return ResponseEntity.status(201).body(new UploadPostResponse(postId));
     }
 
@@ -80,6 +89,27 @@ public class PostController {
         return ResponseEntity.ok(
                 postService.searchPosts(query, region, type, status, page, size).getContent()
         );
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long postId){
+        postService.deletePost(principal.userId(), postId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/posts/created")
+    public ResponseEntity<List<PostListResponse>> myPost(@AuthenticationPrincipal UserPrincipal principal){
+        return ResponseEntity.ok(postService.myPost(principal.userId()));
+    }
+
+    @DeleteMapping("/{postId}/images/{imageId}")
+    public ResponseEntity<Void> deletePostImage(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long postId,
+            @PathVariable Long imageId
+    ) {
+        postService.deletePostImage(principal.userId(), postId, imageId);
+        return ResponseEntity.noContent().build(); // 204
     }
 
 }

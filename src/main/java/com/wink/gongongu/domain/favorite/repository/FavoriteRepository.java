@@ -18,4 +18,20 @@ public interface FavoriteRepository extends JpaRepository<Favorite,Long> {
         order by f.favId desc
     """)
     List<Post> findFavPosts(@Param("userId") Long userId);
+
+    void deleteByPostId_PostId(Long postId);
+
+    interface PostFavCountRow {
+        Long getPostId();
+        Long getFavCount();
+    }
+
+    @Query("""
+        select f.postId.postId as postId,
+               count(f) as favCount
+        from Favorite f
+        where f.postId.postId in :postIds
+        group by f.postId.postId
+    """)
+    List<PostFavCountRow> countFavByPostIds(@Param("postIds") List<Long> postIds);
 }

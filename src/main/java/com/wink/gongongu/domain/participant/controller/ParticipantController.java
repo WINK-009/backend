@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class ParticipantController {
+public class ParticipantController implements ParticipantControllerSpec {
     private final ParticipantService participantService;
 
     @PostMapping("/posts/{postId}/join")
@@ -34,11 +34,13 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/posts/{postId}/join")
-    public ResponseEntity<Void> deletePost(
+    public ResponseEntity<Void> deleteJoin(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long postId
     ){
         participantService.deleteJoin(principal.userId(), postId);
         return ResponseEntity.noContent().build();
     }
+
+
 }
