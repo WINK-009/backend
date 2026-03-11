@@ -72,8 +72,8 @@ public class PostController implements PostControllerSpec {
     */
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId) {
-        return ResponseEntity.ok(postService.getPostDetail(postId));
+    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long postId, @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(postService.getPostDetail(postId, principal.userId()));
     }
 
     // 목록+검색+필터 통합
