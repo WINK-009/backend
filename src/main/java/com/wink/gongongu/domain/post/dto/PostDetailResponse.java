@@ -26,9 +26,10 @@ public record PostDetailResponse(
         LocalDate createdAt,
         PostType type,
         java.util.List<PostImageResponse> images,
-        Integer favCount
+        Integer favCount,
+        boolean isFaved
 ) {
-    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images, int favoriteCount){
+    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images, int favoriteCount, boolean isFaved){
         User u = p.getUserId();
         Integer mq = p.getMaxQuantity();
         int max = (mq == null) ? 0 : mq;  // ✅ null-safe
@@ -49,7 +50,8 @@ public record PostDetailResponse(
                 p.getCreatedAt().toLocalDate(),
                 p.getType(),
                 images,
-                favoriteCount
+                favoriteCount,
+                isFaved
 
         );
     }

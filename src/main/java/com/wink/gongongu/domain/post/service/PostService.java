@@ -143,7 +143,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailResponse getPostDetail(Long postId){
+    public PostDetailResponse getPostDetail(Long postId, Long userId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음: " + postId));
 
@@ -156,7 +156,12 @@ public class PostService {
         int favCount = (int) favoriteRepository.countFavoriteByPostId_PostId(postId);
 
         int joinedSum = participantRepository.sumJoinedQuantity(postId);
-        return PostDetailResponse.from(post, joinedSum, images, favCount);
+
+        boolean isFaved = false;
+        if (userId != null) {
+            isFaved = favoriteRepository.existsByUserId_IdAndPostId_PostId(userId, postId);
+        }
+        return PostDetailResponse.from(post, joinedSum, images, favCount, isFaved);
 
     }
 

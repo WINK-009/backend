@@ -58,6 +58,7 @@ public class Post extends BaseTimeEntity {
 
     private Integer likeCount;
 
+
     public static Post create(User user, UploadPostRequest req, PostType type) {
         Post p = new Post();
         p.userId = user;

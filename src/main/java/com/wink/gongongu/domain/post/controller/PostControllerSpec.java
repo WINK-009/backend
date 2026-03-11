@@ -38,7 +38,7 @@ public interface PostControllerSpec {
     @Operation(
             summary = "공구 게시물 상세 조회 API"
     )
-    ResponseEntity<PostDetailResponse> getPostDetail(Long postId);
+    ResponseEntity<PostDetailResponse> getPostDetail(Long postId, UserPrincipal principal);
 
     @Operation(
             summary = "공구 게시물 검색 API",
