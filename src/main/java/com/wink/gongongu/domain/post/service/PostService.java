@@ -224,10 +224,20 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("사용자 없음"));
 
+        if(post == null){
+            throw new IllegalArgumentException("게시글 없음");
+        }
+
+        if(!post.getUserId().getId().equals(userId)){
+            throw new IllegalArgumentException("삭제 권한 없음");
+        }
+
         if (post.getUserId() == user){
 
             participantRepository.deleteByPostId_PostId(postId);
             favoriteRepository.deleteByPostId_PostId(postId);
+            postImageRepository.deleteByPostId_PostId(postId);
+
             postRepository.delete(post);
         }
     }
