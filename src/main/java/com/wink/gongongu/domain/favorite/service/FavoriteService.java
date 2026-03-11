@@ -37,6 +37,10 @@ public class FavoriteService {
 
         Post post = postRepository.findByPostId(postId);
 
+        if (favoriteRepository.existsByUserId_IdAndPostId_PostId(userId, postId)){
+            throw new IllegalArgumentException("이미 찜 한 게시물 입니다.");
+        }
+
         favoriteRepository.save(Favorite.of(user, post));
     }
 

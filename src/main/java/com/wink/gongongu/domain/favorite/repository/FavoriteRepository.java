@@ -36,4 +36,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite,Long> {
     List<PostFavCountRow> countFavByPostIds(@Param("postIds") List<Long> postIds);
 
     long countFavoriteByPostId_PostId(Long postId);
+
+    boolean existsByUserId_IdAndPostId_PostId(Long userId, Long postId);
 }
