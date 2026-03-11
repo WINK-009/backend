@@ -17,7 +17,9 @@ import com.wink.gongongu.domain.post.repository.PostImageRepository;
 import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.domain.user.entity.User;
 import com.wink.gongongu.domain.user.entity.UserType;
+import com.wink.gongongu.domain.user.exception.UserErrorCode;
 import com.wink.gongongu.domain.user.repository.UserRepository;
+import com.wink.gongongu.global.exception.BusinessException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -46,7 +48,7 @@ public class PostService {
     @Transactional
     public Long postRegister(Long userId, List<MultipartFile> images, UploadPostRequest request) throws IOException {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId));
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
 
         Post post;
         if (user.getUserType() == UserType.BUSINESS) {

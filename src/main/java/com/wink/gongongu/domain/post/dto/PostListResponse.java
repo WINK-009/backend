@@ -30,7 +30,9 @@ public record PostListResponse(
         return from(p, 0,0,null);
     }
     public static PostListResponse from(Post p, int joinedSum, int favoriteCount, String mainImageUrl) {
-        int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
+        Integer mq = p.getMaxQuantity();
+        int max = (mq == null) ? 0 : mq;  // ✅ null-safe
+        int remaining = Math.max(max - joinedSum, 0);
 
         return new PostListResponse(
                 p.getPostId(),
@@ -42,7 +44,7 @@ public record PostListResponse(
                 p.getOriginalprice(),
 
                 p.getDueDate(),
-                p.getMaxQuantity(),
+                max,
                 joinedSum,
                 remaining,
                 p.getStatus(),
