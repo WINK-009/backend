@@ -152,9 +152,11 @@ public class PostService {
                 .stream()
                 .map(PostImageResponse::from)
                 .toList();
+        //조아요 수 모으기
+        int favCount = (int) favoriteRepository.countFavoriteByPostId_PostId(postId);
 
         int joinedSum = participantRepository.sumJoinedQuantity(postId);
-        return PostDetailResponse.from(post, joinedSum, images);
+        return PostDetailResponse.from(post, joinedSum, images, favCount);
 
     }
 

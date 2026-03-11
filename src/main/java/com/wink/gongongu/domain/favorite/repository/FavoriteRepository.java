@@ -34,4 +34,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite,Long> {
         group by f.postId.postId
     """)
     List<PostFavCountRow> countFavByPostIds(@Param("postIds") List<Long> postIds);
+
+    long countFavoriteByPostId_PostId(Long postId);
 }
