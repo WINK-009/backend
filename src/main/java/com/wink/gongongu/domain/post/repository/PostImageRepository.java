@@ -1,5 +1,6 @@
 package com.wink.gongongu.domain.post.repository;
 
+import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.entity.PostImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,7 +32,7 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long> {
 
 
 
-
+    void deleteByPostId_PostId(Long postId);
 
 
 }
