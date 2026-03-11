@@ -25,9 +25,10 @@ public record PostDetailResponse(
         String region,
         LocalDate createdAt,
         PostType type,
-        java.util.List<PostImageResponse> images
+        java.util.List<PostImageResponse> images,
+        Integer favCount
 ) {
-    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images){
+    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images, int favoriteCount){
         User u = p.getUserId();
         Integer mq = p.getMaxQuantity();
         int max = (mq == null) ? 0 : mq;  // ✅ null-safe
@@ -47,7 +48,8 @@ public record PostDetailResponse(
                 p.getRegion(),
                 p.getCreatedAt().toLocalDate(),
                 p.getType(),
-                images
+                images,
+                favoriteCount
 
         );
     }
