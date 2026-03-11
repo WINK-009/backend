@@ -29,7 +29,9 @@ public record PostDetailResponse(
 ) {
     public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images){
         User u = p.getUserId();
-        int remaining = Math.max(p.getMaxQuantity() - joinedSum, 0);
+        Integer mq = p.getMaxQuantity();
+        int max = (mq == null) ? 0 : mq;  // ✅ null-safe
+        int remaining = Math.max(max - joinedSum, 0);
         return new PostDetailResponse(
                 p.getPostId(),
                 u.getId(),
@@ -38,7 +40,7 @@ public record PostDetailResponse(
                 p.getPrice(),
                 p.getOriginalprice(),
                 p.getDueDate(),
-                p.getMaxQuantity(),
+                max,
                 joinedSum,
                 remaining,
                 p.getStatus(),
