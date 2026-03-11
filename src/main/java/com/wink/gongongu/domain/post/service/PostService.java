@@ -3,6 +3,7 @@ package com.wink.gongongu.domain.post.service;
 import com.wink.gongongu.domain.favorite.repository.FavoriteRepository;
 import com.wink.gongongu.domain.favorite.service.FavoriteService;
 import com.wink.gongongu.domain.participant.entity.Participant;
+import com.wink.gongongu.domain.participant.entity.ParticipantStatus;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
 import com.wink.gongongu.domain.participant.service.ParticipantService;
 import com.wink.gongongu.domain.post.dto.PostDetailResponse;
@@ -161,7 +162,14 @@ public class PostService {
         if (userId != null) {
             isFaved = favoriteRepository.existsByUserId_IdAndPostId_PostId(userId, postId);
         }
-        return PostDetailResponse.from(post, joinedSum, images, favCount, isFaved);
+
+        ParticipantStatus ps = ParticipantStatus.NOT_PARTICIPATE;
+        if (userId != null) {
+            ps = participantRepository.findByUserId_IdAndPostId_PostIdAndDeletedFalse(userId, postId)
+                    .map(Participant::getStatus)
+                    .orElse(ParticipantStatus.NOT_PARTICIPATE);
+        }
+        return PostDetailResponse.from(post, joinedSum, images, favCount, isFaved, ps);
 
     }
 

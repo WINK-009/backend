@@ -4,9 +4,11 @@ import com.wink.gongongu.domain.favorite.repository.FavoriteRepository;
 import com.wink.gongongu.domain.participant.dto.JoinPostResponse;
 import com.wink.gongongu.domain.participant.dto.JoinRequest;
 import com.wink.gongongu.domain.participant.entity.Participant;
+import com.wink.gongongu.domain.participant.entity.ParticipantStatus;
 import com.wink.gongongu.domain.participant.repository.ParicipantRepository;
 import com.wink.gongongu.domain.post.dto.PostListResponse;
 import com.wink.gongongu.domain.post.entity.Post;
+import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.repository.PostImageRepository;
 import com.wink.gongongu.domain.post.repository.PostRepository;
 import com.wink.gongongu.domain.user.entity.User;
@@ -58,6 +60,10 @@ public class ParticipantService {
 
         int newJoined = joined + q;
         int remaining = post.getMaxQuantity() - newJoined;
+
+        if (remaining == 0 && post.getStatus() == PostStatus.OPEN) {
+            post.changeStatus(PostStatus.CONFIRMING);
+        }
 
         return new JoinPostResponse(postId, userId, q, newJoined, remaining);
     }
@@ -113,5 +119,74 @@ public class ParticipantService {
                 ))
                 .toList();
 
+    }
+    //참여 확정하기
+    @Transactional
+    public void confirmPurchase(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
+
+        Participant participant = participantRepository
+                .findByUserId_IdAndPostId_PostIdAndDeletedFalse(userId, postId)
+                .orElseThrow(() -> new IllegalArgumentException("참여자가 아닙니다."));
+
+        if (participant.isIshost()) {
+            throw new IllegalArgumentException("방장은 공동구매 확정 대상이 아닙니다.");
+        }
+
+        if (post.getStatus() != PostStatus.CONFIRMING) {
+            throw new IllegalArgumentException("공동구매 확정 가능한 상태가 아닙니다.");
+        }
+
+        if (participant.getStatus() != ParticipantStatus.JOINED) {
+            throw new IllegalArgumentException("이미 확정했거나 거래 완료된 상태입니다.");
+        }
+
+        participant.confirm();
+
+        long totalParticipants = participantRepository
+                .countByPostId_PostIdAndDeletedFalseAndIshostFalse(postId);
+
+        long confirmedParticipants = participantRepository
+                .countByPostId_PostIdAndDeletedFalseAndIshostFalseAndStatus(postId, ParticipantStatus.CONFIRMED);
+
+        if (totalParticipants == confirmedParticipants) {
+            post.changeStatus(PostStatus.TRADING);
+        }
+    }
+
+    //거래 완료하기
+    @Transactional
+    public void completeTrade(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
+
+        Participant participant = participantRepository
+                .findByUserId_IdAndPostId_PostIdAndDeletedFalse(userId, postId)
+                .orElseThrow(() -> new IllegalArgumentException("참여자가 아닙니다."));
+
+        if (participant.isIshost()) {
+            throw new IllegalArgumentException("방장은 거래 완료 대상이 아닙니다.");
+        }
+
+        if (post.getStatus() != PostStatus.TRADING) {
+            throw new IllegalArgumentException("거래 완료 가능한 상태가 아닙니다.");
+        }
+
+        if (participant.getStatus() != ParticipantStatus.CONFIRMED) {
+            throw new IllegalArgumentException("공동구매 확정 후에만 거래 완료 가능합니다.");
+        }
+
+        participant.tradeComplete();
+
+        long totalParticipants = participantRepository
+                .countByPostId_PostIdAndDeletedFalseAndIshostFalse(postId);
+
+        long tradedParticipants = participantRepository
+                .countByPostId_PostIdAndDeletedFalseAndIshostFalseAndStatus(postId, ParticipantStatus.TRADED);
+
+        if (totalParticipants == tradedParticipants) {
+            post.changeStatus(PostStatus.DONE);
+        }
     }
 }

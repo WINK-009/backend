@@ -50,4 +50,28 @@ public interface ParticipantControllerSpec {
             UserPrincipal principal,
             Long postId
     );
+
+    @Operation(
+            summary = "참여 확정API",
+            description = """
+            남은 수량이 0 되면 활성화  
+         
+            """
+    )
+    ResponseEntity<Void> confirmPurchase(
+            UserPrincipal principal,
+            Long postId
+    );
+
+    @Operation(
+            summary = "거래 완료 API",
+            description = """
+            모든 사람이 공구 확정 누르면 활성화  
+         
+            """
+    )
+    ResponseEntity<Void> completeTrade(
+            UserPrincipal principal,
+            Long postId
+    );
 }

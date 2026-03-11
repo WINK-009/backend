@@ -80,4 +80,8 @@ public class Post extends BaseTimeEntity {
         this.image = imageUrl;
     }
 
+    public void changeStatus(PostStatus status) {
+        this.status = status;
+    }
+
 }
