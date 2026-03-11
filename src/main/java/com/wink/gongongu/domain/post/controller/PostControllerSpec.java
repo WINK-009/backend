@@ -36,14 +36,23 @@ public interface PostControllerSpec {
     )throws IOException;
 
     @Operation(
-            summary = "공구 게시물 상세 조회 API"
+            summary = "공구 게시물 상세 조회 API",
+            description = """
+            OPEN,// 모집 중
+            CONFIRMING, //공구 확정 단계
+            TRADING,// 거래 완료 전 (거래 진행 단계, 모든 참여자가 공구 확정 누른 상태)
+            DONE // 거래 완료까지 완료
+"""
     )
     ResponseEntity<PostDetailResponse> getPostDetail(Long postId, UserPrincipal principal);
 
     @Operation(
             summary = "공구 게시물 검색 API",
             description = """
-
+            OPEN,// 모집 중
+            CONFIRMING, //공구 확정 단계
+            TRADING,// 거래 완료 전 (거래 진행 단계, 모든 참여자가 공구 확정 누른 상태)
+            DONE // 거래 완료까지 완료 (모든 참여자가 거래 완료 누른 상태)
             """
     )
     ResponseEntity<List<PostListResponse>> getPosts(

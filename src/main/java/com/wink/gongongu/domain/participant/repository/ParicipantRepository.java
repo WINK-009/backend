@@ -1,6 +1,7 @@
 package com.wink.gongongu.domain.participant.repository;
 
 import com.wink.gongongu.domain.participant.entity.Participant;
+import com.wink.gongongu.domain.participant.entity.ParticipantStatus;
 import com.wink.gongongu.domain.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -44,4 +45,7 @@ public interface ParicipantRepository extends JpaRepository<Participant, Long> {
 
     Optional<Participant> findByUserId_IdAndPostId_PostIdAndDeletedFalse(Long userId, Long postId);
     void deleteByPostId_PostId(Long postId);
+
+    long countByPostId_PostIdAndDeletedFalseAndIshostFalse(Long postId); // 일반 참여자 수
+    long countByPostId_PostIdAndDeletedFalseAndIshostFalseAndStatus(Long postId, ParticipantStatus status);//일반참여자 수 중 거래 확정한 사람 수
 }

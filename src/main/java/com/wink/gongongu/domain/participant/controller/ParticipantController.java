@@ -41,6 +41,24 @@ public class ParticipantController implements ParticipantControllerSpec {
         participantService.deleteJoin(principal.userId(), postId);
         return ResponseEntity.noContent().build();
     }
+    //공구 확정
+    @PatchMapping("/posts/{postId}/confirm")
+    public ResponseEntity<Void> confirmPurchase(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long postId
+    ) {
+        participantService.confirmPurchase(principal.userId(), postId);
+        return ResponseEntity.ok().build();
+    }
+    //거래 완료
+    @PatchMapping("/posts/{postId}/trade-complete")
+    public ResponseEntity<Void> completeTrade(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long postId
+    ) {
+        participantService.completeTrade(principal.userId(), postId);
+        return ResponseEntity.ok().build();
+    }
 
 
 }

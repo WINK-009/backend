@@ -1,6 +1,7 @@
 package com.wink.gongongu.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wink.gongongu.domain.participant.entity.ParticipantStatus;
 import com.wink.gongongu.domain.post.entity.Post;
 import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.post.entity.PostType;
@@ -27,9 +28,10 @@ public record PostDetailResponse(
         PostType type,
         java.util.List<PostImageResponse> images,
         Integer favCount,
-        boolean isFaved
+        boolean isFaved,
+        ParticipantStatus participantStatus
 ) {
-    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images, int favoriteCount, boolean isFaved){
+    public static PostDetailResponse from(Post p, int joinedSum, java.util.List<PostImageResponse> images, int favoriteCount, boolean isFaved, ParticipantStatus participantStatus){
         User u = p.getUserId();
         Integer mq = p.getMaxQuantity();
         int max = (mq == null) ? 0 : mq;  // ✅ null-safe
@@ -51,7 +53,8 @@ public record PostDetailResponse(
                 p.getType(),
                 images,
                 favoriteCount,
-                isFaved
+                isFaved,
+                participantStatus
 
         );
     }

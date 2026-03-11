@@ -1,6 +1,7 @@
 package com.wink.gongongu.domain.participant.entity;
 
 import com.wink.gongongu.domain.post.entity.Post;
+import com.wink.gongongu.domain.post.entity.PostStatus;
 import com.wink.gongongu.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -34,6 +35,9 @@ public class Participant {
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
+    @Enumerated(EnumType.STRING)
+    private ParticipantStatus status;
+
     public static Participant of(User user, Post post, Integer quantity) {
         Participant p = new Participant();
         p.userId = user;
@@ -41,7 +45,9 @@ public class Participant {
         p.quantity = quantity;
         p.ishost = false;
         p.deleted = false;
+        p.status = ParticipantStatus.JOINED;
         return p;
+
     }
 
     public void setDeleted(boolean deleted) {
@@ -55,6 +61,16 @@ public class Participant {
         p.quantity = 0;
         p.deleted = false;
         p.ishost = true;
+        p.status = ParticipantStatus.JOINED;
         return p;
+
+    }
+
+    public void confirm() {
+        this.status = ParticipantStatus.CONFIRMED;
+    }
+
+    public void tradeComplete() {
+        this.status = ParticipantStatus.TRADED;
     }
 }
