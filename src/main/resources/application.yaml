@@ -11,6 +11,49 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-name: kakao
+            client-id: ${KAKAO_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+jwt:
+  secret: "${JWT_SECRET}"
+  access-exp-seconds: 2592000
+  refresh-exp-seconds: 2592000
+  tmp-exp-seconds: 86400
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+app:
+  front-base-url: ${FRONT_BASE_URL}
+
+cloud:
+  aws:
+    region: ap-northeast-2
+    s3:
+      bucket: ${S3_BUCKET}
+      public-base-url: https://${S3_BUCKET}.s3.ap-northeast-2.amazonaws.com
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY:}
+  confirm-url: https://api.tosspayments.com/v1/payments/confirm
